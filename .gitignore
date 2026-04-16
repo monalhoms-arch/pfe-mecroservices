@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+
+# Node.js
+node_modules/
+dist/
+dist-ssr
+*.local
+.npm
+.eslintcache
+
+# Project specific
+invoices/
+fonts/
+.vscode/
+.idea/
+*.log
+*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db
