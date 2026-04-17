@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import Sidebar from './components/Sidebar'
-import WorkerDashboard from './components/WorkerDashboard' // Assuming this is the old one if needed, but we used App.jsx logic
 import ProviderCard from './components/ProviderCard'
 import ArchitectureMonitor from './components/ArchitectureMonitor'
 
-// Admin Components
+// Admin & Test Tools
 import AdminWhatsApp from './components/admin/AdminWhatsApp'
 import AdminPDF from './components/admin/AdminPDF'
 import AdminGPS from './components/admin/AdminGPS'
@@ -23,6 +22,9 @@ function App() {
   const [locStatus, setLocStatus] = useState('لم يتم رصد الموقع')
   const [reminders, setReminders] = useState([])
   const [toast, setToast] = useState(null)
+  
+  // Service Pulse State
+  const [onlineCount, setOnlineCount] = useState(0)
 
   const showToast = (msg) => {
     setToast(msg)
@@ -31,113 +33,118 @@ function App() {
 
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
-      showToast('⚠️ المتصفح لا يدعم بروتوكول تحديد المواقع')
+      showToast('⚠️ المتصفح لا يدعم بروتوكول الموقع')
       return
     }
     setLocStatus('📡 جاري رصد الإحداثيات...')
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude })
-        setLocStatus(`📍 تم التحديد: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`)
+        setLocStatus(`📍 تم التحديد: ${pos.coords.latitude.toFixed(4)}`)
         showToast('✅ تم بنجاح رصد موقعك الجغرافي')
       },
       () => {
         setLocStatus('❌ فشل الوصول للموقع')
-        showToast('يرجى تفعيل صلاحيات الموقع في المتصفح')
+        showToast('يرجى تفعيل الصلاحيات في المتصفح')
       }
     )
   }
 
-  const loadReminders = async () => {
-    try {
-      const res = await fetch('http://127.0.0.1:8000/reminders')
-      const data = await res.json()
-      setReminders(data.scheduled_jobs || [])
-    } catch { /* Silent */ }
-  }
-
   useEffect(() => {
-    if (activeTab === 'reminders') loadReminders()
-  }, [activeTab])
+    const checkServices = async () => {
+      let count = 0
+      for (let port of [8000, 8001, 8002]) {
+        try { await fetch(`http://127.0.0.1:${port}/health`, { mode: 'no-cors' }); count++ } catch {}
+      }
+      setOnlineCount(count)
+    }
+    checkServices()
+    const interval = setInterval(checkServices, 10000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div className="app-wrapper">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-      
-      <main className="main-viewport showcase-container" style={{ padding: '40px 24px' }}>
-        
-        {/* Marketplace View */}
-        {activeTab === 'dashboard' && (
-          <div className="fade-in-up">
-            <header>
-              <h1 className="headline">منصة خدمتي</h1>
-              <p className="subheadline">النظام البيئي المتكامل لإدارة خدمات الصيانة عبر تقنيات الـ Microservices</p>
-            </header>
-
-            <section className="glass-pane" style={{ marginBottom: '60px' }}>
-              <h3 className="headline" style={{ fontSize: '24px', textAlign: 'right', marginBottom: '24px' }}>تجهيز طلب الخدمة</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
-                <div className="form-group">
-                  <label className="label">إسم العميل</label>
-                  <input className="input-field" placeholder="أدخل اسمك الكامل..." value={custName} onChange={e => setCustName(e.target.value)} />
-                </div>
-                <div className="form-group">
-                  <label className="label">توقيت الموعد المفضل</label>
-                  <input type="datetime-local" className="input-field" value={apptDate} onChange={e => setApptDate(e.target.value)} />
-                </div>
-                <div className="form-group" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                  <button className={`btn-premium ${location.lat ? 'btn-primary' : 'btn-outline'}`} onClick={handleGetLocation}>
-                    {location.lat ? '📍 الموقع المسجل' : '📍 رصد الموقع الحالي'}
-                  </button>
-                  <p style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '6px', textAlign: 'center' }}>{locStatus}</p>
-                </div>
-              </div>
-            </section>
-
-            <div className="grid-layout">
-              {PROVIDERS.map(p => (
-                <ProviderCard key={p.id} provider={p} customerName={custName} apptDate={apptDate} location={location} showToast={showToast} />
-              ))}
-            </div>
-
-            <ArchitectureMonitor />
+      {/* Global Persistence: Health Header */}
+      <header className="global-health-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="status-chip">
+            <div className={`pulse ${onlineCount > 0 ? 'pulse-green' : ''}`} />
+            <span>الحالة التشغيلية: {onlineCount}/3 خدمات متصلة</span>
           </div>
-        )}
+        </div>
+        <div style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-secondary)' }}>
+          KHIDMATI GATEWAY v2.0
+        </div>
+      </header>
 
-        {/* Reminders View */}
-        {activeTab === 'reminders' && (
-          <div className="fade-in-up">
-            <h2 className="headline" style={{ textAlign: 'right' }}>🔔 التذكيرات النشطة</h2>
-            <div className="glass-pane">
-              {reminders.length > 0 ? (
-                reminders.map((job, i) => (
-                  <div key={i} className="reminder-item">
-                    <span style={{ fontSize: '24px' }}>⏰</span>
-                    <div>
-                      <h4 style={{ fontSize: '15px' }}>موعد مجدول لنظام الواتساب</h4>
-                      <p style={{ color: 'var(--text-dim)', fontSize: '12px' }}>وقت التنفيذ المخطط: {job.next_run}</p>
+      <div style={{ display: 'flex' }}>
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        
+        <main className="main-viewport showcase-container">
+          
+          <div key={activeTab} className="page-transition">
+            {/* ── Marketplace View ── */}
+            {activeTab === 'dashboard' && (
+              <>
+                <header style={{ marginBottom: '40px' }}>
+                  <h1 className="headline" style={{ fontSize: '42px', textAlign: 'center' }}>منصة خدمتي</h1>
+                  <p className="subheadline">النظام البيئي الذكي لإدارة خدمات الصيانة الميدانية</p>
+                </header>
+
+                <section className="glass-pane" style={{ marginBottom: '60px' }}>
+                  <label className="label">تجهيز طلب حجز عامل</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+                    <div className="form-group">
+                      <input className="input-field" placeholder="اسم العميل الكامل..." value={custName} onChange={e => setCustName(e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                      <input type="datetime-local" className="input-field" value={apptDate} onChange={e => setApptDate(e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                      <button className={`btn-premium ${location.lat ? 'btn-primary' : 'btn-outline'}`} onClick={handleGetLocation}>
+                        {location.lat ? '📍 الموقع الجغرافي مؤمن' : '📍 رصد الموقع الحالي'}
+                      </button>
                     </div>
                   </div>
-                ))
-              ) : (
-                <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '40px' }}>لا توجد تذكيرات مجدولة حالياً.</p>
-              )}
-            </div>
+                </section>
+
+                <div className="grid-layout">
+                  {PROVIDERS.map(p => (
+                    <ProviderCard key={p.id} provider={p} customerName={custName} apptDate={apptDate} location={location} showToast={showToast} />
+                  ))}
+                </div>
+
+                <ArchitectureMonitor />
+              </>
+            )}
+
+            {/* ── Admin Tools ── */}
+            {activeTab === 'admin-wa' && <AdminWhatsApp showToast={showToast} />}
+            {activeTab === 'admin-pdf' && <AdminPDF showToast={showToast} />}
+            {activeTab === 'admin-gps' && <AdminGPS showToast={showToast} />}
           </div>
-        )}
 
-        {/* Admin Views */}
-        {activeTab === 'admin-wa' && <AdminWhatsApp showToast={showToast} />}
-        {activeTab === 'admin-pdf' && <AdminPDF showToast={showToast} />}
-        {activeTab === 'admin-gps' && <AdminGPS showToast={showToast} />}
+          {/* Academic Footer */}
+          <footer style={{ marginTop: '120px', borderTop: '1px solid var(--glass-border)', paddingTop: '60px', opacity: 0.8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px' }}>
+              <div>
+                <h5 style={{ color: 'var(--primary)', marginBottom: '12px' }}>المنهجية البرمجية</h5>
+                <p style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>تعتمد المنصة على بنية Microservices منفصلة لضمان استمرارية العمل حتى في حال توقف أحد الأجزاء.</p>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <h5 style={{ color: 'var(--secondary)', marginBottom: '12px' }}>التقنيات المستخدمة</h5>
+                <p style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>React 18 / Vite / FastAPI / Redis / SQL / Evolution API</p>
+              </div>
+              <div style={{ textAlign: 'left' }}>
+                <h5 style={{ color: 'var(--accent)', marginBottom: '12px' }}>الغرض من المشروع</h5>
+                <p style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>مشروع تخرج لنيل شهادة مهندس دولة في الإعلام الآلي - جامعة 2026</p>
+              </div>
+            </div>
+          </footer>
+        </main>
+      </div>
 
-        {/* Footer */}
-        <footer style={{ marginTop: '100px', borderTop: '1px solid var(--glass-border)', paddingTop: '40px', textAlign: 'center', opacity: 0.5 }}>
-          <p>منصة خدمتي — Khidmati Ecosystem 2026</p>
-        </footer>
-      </main>
-
-      {/* Global Toast */}
       {toast && <div className="toast fade-in">{toast}</div>}
     </div>
   )

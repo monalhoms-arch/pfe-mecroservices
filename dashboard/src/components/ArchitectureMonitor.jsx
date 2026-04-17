@@ -9,7 +9,7 @@ export default function ArchitectureMonitor() {
 
   const checkStatus = async (port) => {
     try {
-      const res = await fetch(`http://127.0.0.1:${port}/health`, { mode: 'no-cors' })
+      await fetch(`http://127.0.0.1:${port}/health`, { mode: 'no-cors' })
       return 'online'
     } catch {
       return 'offline'
@@ -32,58 +32,71 @@ export default function ArchitectureMonitor() {
     <div className="glass-pane" style={{ marginTop: '60px', padding: '40px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
         <div>
-          <h3 className="headline" style={{ fontSize: '24px', textAlign: 'right' }}>هيكلية الخدمات المصغرة (Microservices)</h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>نظام موزع يضمن الكفاءة العالية وفصل المهام</p>
-        </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
-          {[8000, 8001, 8002].map(port => (
-            <div key={port} className="status-chip">
-              <div className={`pulse ${statuses[port] === 'online' ? 'pulse-green' : ''}`} 
-                   style={{ background: statuses[port] === 'online' ? 'var(--primary)' : '#ef4444' }} />
-              <span>Port {port}</span>
-            </div>
-          ))}
+          <h3 className="headline" style={{ fontSize: '24px', textAlign: 'right' }}>هيكلية الخدمات المصغرة (Advanced Microservices)</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>بنية تحتية موزعة تعتمد على استقلالية الخدمات</p>
         </div>
       </div>
 
-      <div className="architecture-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px', position: 'relative' }}>
-        {/* Core - WhatsApp */}
-        <div style={{ textAlign: 'center', zIndex: 2 }}>
-          <div style={{ padding: '20px', borderRadius: '20px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid var(--primary)' }}>
+      <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px', padding: '20px 0' }}>
+        
+        {/* Animated Lines Behind Nodes */}
+        <div style={{ position: 'absolute', top: '50%', left: '10%', right: '10%', height: '2px', background: 'rgba(255,255,255,0.05)', overflow: 'hidden', zIndex: 0 }}>
+          <div className="flow-line"></div>
+        </div>
+
+        {/* WhatsApp Hub */}
+        <div className="service-node" style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+          <div style={{ padding: '24px', borderRadius: '24px', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid var(--primary)', boxShadw: '0 0 20px rgba(16, 185, 129, 0.1)' }}>
             <span style={{ fontSize: '32px' }}>💬</span>
-            <h4 style={{ fontSize: '16px', marginTop: '10px' }}>WhatsApp Hub</h4>
-            <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Port 8000</p>
+            <h4 style={{ fontSize: '16px', marginTop: '12px' }}>WhatsApp Hub</h4>
+            <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', marginTop: '8px' }}>
+              {['FastAPI', 'Redis'].map(t => (
+                <span key={t} style={{ fontSize: '9px', background: 'var(--primary)', color: '#000', padding: '2px 6px', borderRadius: '4px', fontWeight: '800' }}>{t}</span>
+              ))}
+            </div>
           </div>
-          <p style={{ fontSize: '12px', marginTop: '12px', color: 'var(--text-secondary)' }}>تنسيق الحجوزات والرسائل</p>
+          <p style={{ fontSize: '12px', marginTop: '14px', color: statuses[8000] === 'online' ? 'var(--primary)' : 'var(--text-muted)' }}>
+            {statuses[8000] === 'online' ? '● Active' : '○ Standby'}
+          </p>
         </div>
 
-        {/* Satellite 1 - GPS */}
-        <div style={{ textAlign: 'center', zIndex: 2 }}>
-          <div style={{ padding: '20px', borderRadius: '20px', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid var(--secondary)' }}>
+        {/* GPS Satellite */}
+        <div className="service-node" style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+          <div style={{ padding: '24px', borderRadius: '24px', background: 'rgba(59, 130, 246, 0.05)', border: '1px solid var(--secondary)', boxShadw: '0 0 20px rgba(59, 130, 246, 0.1)' }}>
             <span style={{ fontSize: '32px' }}>📍</span>
-            <h4 style={{ fontSize: '16px', marginTop: '10px' }}>GPS Analytics</h4>
-            <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Port 8001</p>
+            <h4 style={{ fontSize: '16px', marginTop: '12px' }}>GPS Satellite</h4>
+            <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', marginTop: '8px' }}>
+              {['GeoTools', 'Maps'].map(t => (
+                <span key={t} style={{ fontSize: '9px', background: 'var(--secondary)', color: '#fff', padding: '2px 6px', borderRadius: '4px', fontWeight: '800' }}>{t}</span>
+              ))}
+            </div>
           </div>
-          <p style={{ fontSize: '12px', marginTop: '12px', color: 'var(--text-secondary)' }}>تتبع المواقع الجغرافية</p>
+          <p style={{ fontSize: '12px', marginTop: '14px', color: statuses[8001] === 'online' ? 'var(--secondary)' : 'var(--text-muted)' }}>
+            {statuses[8001] === 'online' ? '● Active' : '○ Standby'}
+          </p>
         </div>
 
-        {/* Satellite 2 - PDF */}
-        <div style={{ textAlign: 'center', zIndex: 2 }}>
-          <div style={{ padding: '20px', borderRadius: '20px', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid var(--accent)' }}>
+        {/* PDF Engine */}
+        <div className="service-node" style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+          <div style={{ padding: '24px', borderRadius: '24px', background: 'rgba(245, 158, 11, 0.05)', border: '1px solid var(--accent)', boxShadw: '0 0 20px rgba(245, 158, 11, 0.1)' }}>
             <span style={{ fontSize: '32px' }}>📄</span>
-            <h4 style={{ fontSize: '16px', marginTop: '10px' }}>Invoice Engine</h4>
-            <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Port 8002</p>
+            <h4 style={{ fontSize: '16px', marginTop: '12px' }}>Invoice Engine</h4>
+            <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', marginTop: '8px' }}>
+              {['ReportLab', 'FPDF'].map(t => (
+                <span key={t} style={{ fontSize: '9px', background: 'var(--accent)', color: '#000', padding: '2px 6px', borderRadius: '4px', fontWeight: '800' }}>{t}</span>
+              ))}
+            </div>
           </div>
-          <p style={{ fontSize: '12px', marginTop: '12px', color: 'var(--text-secondary)' }}>توليد الفواتير التلقائية</p>
+          <p style={{ fontSize: '12px', marginTop: '14px', color: statuses[8002] === 'online' ? 'var(--accent)' : 'var(--text-muted)' }}>
+            {statuses[8002] === 'online' ? '● Active' : '○ Standby'}
+          </p>
         </div>
 
-        {/* Connecting Lines (Simulated with CSS) */}
-        <div style={{ position: 'absolute', top: '50%', left: '15%', right: '15%', height: '1px', background: 'linear-gradient(to right, transparent, var(--glass-border), transparent)', zIndex: 1 }}></div>
       </div>
 
-      <div style={{ marginTop: '40px', padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', textAlign: 'center' }}>
-        <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-          ✅ جميع الخدمات تتواصل عبر بروتوكول HTTP RESTful وتعتمد على قواعد بيانات مستقلة لضمان استقرار المنصة.
+      <div style={{ marginTop: '40px', padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px dashed var(--glass-border)' }}>
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', textAlign: 'center' }}>
+          💡 يتميز هذا النظام بالقدرة على التوسع (Scalability) حيث يمكن إضافة خدمات جديدة دون التأثير على النظام القائم.
         </p>
       </div>
     </div>

@@ -6,6 +6,7 @@
   --primary: #10b981;
   --primary-glow: rgba(16, 185, 129, 0.4);
   --secondary: #3b82f6;
+  --secondary-glow: rgba(59, 130, 246, 0.4);
   --accent: #f59e0b;
   
   --glass: rgba(15, 23, 42, 0.7);
@@ -15,6 +16,7 @@
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
+  --text-dim: #475569;
   
   --radius-2xl: 32px;
   --radius-xl: 24px;
@@ -32,8 +34,9 @@
 body {
   background-color: var(--bg-main);
   background-image: 
-    radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.08) 0%, transparent 40%);
+    radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(59, 130, 246, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.05) 0%, transparent 60%);
   color: var(--text-primary);
   font-family: 'Public Sans', 'Tajawal', sans-serif;
   min-height: 100vh;
@@ -42,34 +45,38 @@ body {
   line-height: 1.6;
 }
 
-/* ── Container ── */
+/* ── Noise Overlay (Premium Touch) ── */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  opacity: 0.03;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  z-index: 9999;
+}
+
+/* ── Global Header Monitor ── */
+.global-health-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(2, 6, 23, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 12px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ── View Container ── */
 .showcase-container {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 60px 24px;
-  position: relative;
-}
-
-/* ── Typography ── */
-.headline {
-  font-family: 'Tajawal', sans-serif;
-  font-size: 42px;
-  font-weight: 800;
-  letter-spacing: -1px;
-  background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 12px;
-  text-align: center;
-}
-
-.subheadline {
-  color: var(--text-secondary);
-  font-size: 18px;
-  font-weight: 400;
-  text-align: center;
-  margin-bottom: 60px;
+  padding: 40px 24px;
 }
 
 /* ── Glass Cards ── */
@@ -81,162 +88,95 @@ body {
   border-radius: var(--radius-xl);
   padding: 32px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
-  overflow: hidden;
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s;
-}
-
-.glass-pane::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: linear-gradient(135deg, var(--glass-highlight) 0%, transparent 100%);
-  pointer-events: none;
 }
 
 .glass-pane:hover {
   border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.8);
 }
 
-/* ── Marketplace Grid ── */
-.grid-layout {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 32px;
-  margin-top: 40px;
-}
-
-/* ── Worker Cards ── */
-.worker-card {
-  text-align: center;
-  padding: 40px 24px;
-}
-
-.worker-card:hover {
-  transform: translateY(-8px) scale(1.02);
-}
-
-.avatar-circle {
-  width: 80px; height: 80px;
-  margin: 0 auto 24px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 32px; font-weight: 800;
-  box-shadow: 0 0 30px var(--primary-glow);
-  border: 4px solid var(--bg-main);
-}
-
-.worker-details h3 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
-.worker-details .tag { color: var(--primary); font-size: 14px; font-weight: 600; margin-bottom: 24px; display: block; }
-
-/* ── Buttons ── */
-.btn-premium {
-  width: 100%;
-  padding: 14px 24px;
-  border-radius: var(--radius-md);
-  font-family: inherit;
-  font-weight: 700;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  border: none;
-  outline: none;
-}
-
-.btn-primary {
-  background: var(--primary);
-  color: #fff;
-  box-shadow: 0 4px 15px var(--primary-glow);
-}
-
-.btn-primary:hover {
-  filter: brightness(1.1);
-  box-shadow: 0 8px 25px var(--primary-glow);
-}
-
-.btn-outline {
-  background: transparent;
-  border: 1px solid var(--glass-border);
-  color: var(--text-primary);
-  margin-top: 12px;
-}
-
-.btn-outline:hover {
-  background: var(--glass-highlight);
-  border-color: var(--text-muted);
-}
-
-/* ── Status Monitor ── */
-.monitor-bar {
-  display: flex; gap: 24px; justify-content: center; margin-bottom: 40px;
-}
-
-.status-chip {
-  padding: 8px 16px;
-  border-radius: 50px;
-  background: var(--bg-accent);
-  border: 1px solid var(--glass-border);
-  display: flex; align-items: center; gap: 8px;
-  font-size: 13px; font-weight: 600;
-}
-
-.pulse {
-  width: 8px; height: 8px; border-radius: 50%;
-}
-
-.pulse-green { background: var(--primary); box-shadow: 0 0 10px var(--primary); animation: blink 1.5s infinite; }
-
-@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-
-/* ── Customer Form ── */
+/* ── Inputs ── */
 .input-field {
   width: 100%;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.3);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   padding: 14px 18px;
   color: white;
   font-family: inherit;
   font-size: 14px;
-  transition: border-color 0.3s;
   outline: none;
-}
-
-select.input-field {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: left 1rem center;
-  background-size: 1em;
-  padding-left: 2.5rem;
-}
-
-textarea.input-field {
-  resize: vertical;
-  min-height: 100px;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .input-field:focus {
   border-color: var(--primary);
-  background: rgba(0,0,0,0.3);
-  box-shadow: 0 0 15px var(--primary-glow);
+  background: rgba(16, 185, 129, 0.05);
+  box-shadow: 0 0 20px var(--primary-glow);
 }
 
-/* ── Animations ── */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+/* ── Buttons ── */
+.btn-premium {
+  padding: 14px 24px;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  border: none;
 }
 
-.fade-in-up {
-  animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), #059669);
+  color: #fff;
+  box-shadow: 0 8px 16px -4px var(--primary-glow);
 }
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg-main); }
-::-webkit-scrollbar-thumb { background: var(--bg-accent); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--glass-border); }
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -6px var(--primary-glow);
+}
+
+/* ── Data Flow Animations ── */
+.flow-line {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--primary), transparent);
+  animation: data-pulse 2s infinite linear;
+}
+
+@keyframes data-pulse {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* ── Page Transitions ── */
+.page-transition {
+  animation: page-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes page-in {
+  from { opacity: 0; transform: scale(0.98) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Typography ── */
+.headline {
+  background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+/* ── Labels ── */
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  display: block;
+}
