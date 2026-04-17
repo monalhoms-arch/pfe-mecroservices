@@ -1,5 +1,14 @@
 const TABS = [
   {
+    id: 'dashboard',
+    icon: '🏠',
+    title: 'Overview',
+    sub: 'System Dashboard',
+    port: 'Home',
+    portClass: 'port-home',
+    activeClass: 'active-dashboard',
+  },
+  {
     id: 'whatsapp',
     icon: '💬',
     title: 'WhatsApp',

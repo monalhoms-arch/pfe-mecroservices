@@ -81,6 +81,37 @@ export default function PdfTab() {
     }
   }
 
+  const getDownloadUrl = () => {
+    if (!response || !response.download_url) return null
+    if (typeof response.download_url === 'string') return response.download_url
+    if (typeof response.download_url === 'object' && response.download_url._url) return response.download_url._url
+    return String(response.download_url)
+  }
+
+  const downloadPdf = async () => {
+    const url = getDownloadUrl()
+    if (!url) return
+
+    try {
+      const res = await fetch(url)
+      if (!res.ok) {
+        showToast('فشل تحميل الفاتورة، حاول مرة أخرى', 'error')
+        return
+      }
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = blobUrl
+      a.download = `${response.invoice_id}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(blobUrl)
+    } catch {
+      showToast('فشل تحميل الفاتورة من السيرفر', 'error')
+    }
+  }
+
   const statusDot =
     serverOnline === null ? '' :
     serverOnline === 'checking' ? 'checking' :
@@ -253,16 +284,15 @@ export default function PdfTab() {
         {response && (
           <div style={{ marginTop: 16 }}>
             <div className="response-block">{JSON.stringify(response, null, 2)}</div>
-            {response.download_url && (
-              <a
-                href={response.download_url}
-                target="_blank"
-                rel="noreferrer"
+            {getDownloadUrl() && (
+              <button
+                type="button"
+                onClick={downloadPdf}
                 className="btn btn-pdf btn-sm"
                 style={{ marginTop: 12, display: 'inline-flex' }}
               >
                 ⬇️ تحميل الفاتورة ({response.invoice_id})
-              </a>
+              </button>
             )}
           </div>
         )}

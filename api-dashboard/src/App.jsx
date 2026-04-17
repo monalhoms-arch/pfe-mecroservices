@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import './index.css'
 import './App.css'
 import Sidebar from './components/Sidebar'
+import Dashboard from './components/Dashboard'
 import WhatsAppTab from './components/WhatsAppTab'
 import PdfTab from './components/PdfTab'
 import GpsTab from './components/GpsTab'
@@ -10,7 +11,7 @@ import Toast from './components/Toast'
 export const ToastContext = React.createContext(null)
 
 function App() {
-  const [activeTab, setActiveTab] = useState('whatsapp')
+  const [activeTab, setActiveTab] = useState('dashboard')
   const [toast, setToast] = useState(null)
 
   const showToast = (msg, type = 'success') => {
@@ -24,7 +25,8 @@ function App() {
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         <main className="main-content">
           <div className="tab-content fade-in-up" key={activeTab}>
-            {activeTab === 'whatsapp' && <WhatsAppTab />}
+            {activeTab === 'dashboard' && <Dashboard />}
+            {activeTab === 'whatsapp'  && <WhatsAppTab />}
             {activeTab === 'pdf'       && <PdfTab />}
             {activeTab === 'gps'       && <GpsTab />}
           </div>

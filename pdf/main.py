@@ -5,8 +5,9 @@ from datetime import datetime
 from typing import List, Optional
 
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from fpdf import FPDF
@@ -20,12 +21,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-os.makedirs("invoices", exist_ok=True)
-os.makedirs("fonts", exist_ok=True)
-app.mount("/invoices", StaticFiles(directory="invoices"), name="invoices")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+INVOICES_DIR = os.path.join(BASE_DIR, "invoices")
+FONTS_DIR = os.path.join(BASE_DIR, "fonts")
+FONT_URL = "https://github.com/google/fonts/raw/main/ofl/amiri/Amiri-Regular.ttf"
+FONT_PATH = os.path.join(FONTS_DIR, "Amiri-Regular.ttf")
 
-FONT_URL = "https://github.com/alif-type/amiri/raw/master/Amiri-Regular.ttf"
-FONT_PATH = "fonts/Amiri-Regular.ttf"
+os.makedirs(INVOICES_DIR, exist_ok=True)
+os.makedirs(FONTS_DIR, exist_ok=True)
+app.mount("/invoices", StaticFiles(directory=INVOICES_DIR), name="invoices")
 
 # تأكد من تحميل الخط العربي عند التشغيل
 if not os.path.exists(FONT_PATH):
@@ -34,7 +38,8 @@ if not os.path.exists(FONT_PATH):
         urllib.request.urlretrieve(FONT_URL, FONT_PATH)
         print("Font downloaded successfully.")
     except Exception as e:
-        print(f"Failed to download font: {e}")
+        print(f"Failed to download font from {FONT_URL}: {e}")
+        print("PDF generation may fail for Arabic/non-Latin text without a Unicode font.")
 
 # ──────── النماذج ────────
 class InvoiceItem(BaseModel):
@@ -60,13 +65,14 @@ def generate_pdf(data: InvoiceRequest, invoice_id: str):
     if os.path.exists(FONT_PATH):
         pdf.add_font("Amiri", "", FONT_PATH, uni=True)
         f = "Amiri"
+        pdf.set_font(f, size=20)
     else:
         f = "Helvetica"
-        
+        pdf.set_font(f, size=20)
+    
     # رأس الفاتورة
     pdf.set_fill_color(37, 211, 102) # اللون الأخضر
     pdf.rect(0, 0, 210, 35, "F")
-    pdf.set_font(f, size=20)
     pdf.set_text_color(255, 255, 255)
     pdf.set_xy(10, 10)
     pdf.cell(190, 15, data.invoice_title, align="C")
@@ -142,20 +148,18 @@ def generate_pdf(data: InvoiceRequest, invoice_id: str):
     pdf.cell(190, 8, "Generated Automatically | Thank you for your business", align="C")
 
     # حفظ الملف
-    file_path = f"invoices/{invoice_id}.pdf"
+    file_path = os.path.join(INVOICES_DIR, f"{invoice_id}.pdf")
     pdf.output(file_path)
     return file_path
 
 # ──────── الـ API ────────
 @app.post("/api/v1/generate-pdf")
-async def create_pdf_invoice(request: InvoiceRequest):
+async def create_pdf_invoice(request: Request, payload: InvoiceRequest):
     try:
         invoice_id = str(uuid.uuid4())[:8].upper()
-        generate_pdf(request, invoice_id)
+        generate_pdf(payload, invoice_id)
         
-        # الرابط المحلي للوصول إلى الفاتورة
-        # يمكن تغييره بناءً على الدومين في الإنتاج
-        download_url = f"http://127.0.0.1:8002/invoices/{invoice_id}.pdf"
+        download_url = str(request.url_for("download_invoice", invoice_id=invoice_id))
         
         return {
             "status": "success",
@@ -164,6 +168,22 @@ async def create_pdf_invoice(request: InvoiceRequest):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/files/{invoice_id}", name="download_invoice")
+async def download_invoice(invoice_id: str):
+    file_path = os.path.join(INVOICES_DIR, f"{invoice_id}.pdf")
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    return FileResponse(
+        file_path,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=\"{invoice_id}.pdf\""}
+    )
+
+@app.get("/api/v1/invoices/{invoice_id}")
+async def download_invoice_legacy(invoice_id: str):
+    """Legacy route for old client links. Use /api/v1/files/ instead."""
+    return await download_invoice(invoice_id)
 
 if __name__ == "__main__":
     # تشغيل السيرفر على المنفذ 8002
