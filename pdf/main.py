@@ -17,8 +17,8 @@ from sqlalchemy import create_engine, Column, Integer, String, DECIMAL, TIMESTAM
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "mysql+pymysql://root@localhost/abc"
-engine = create_engine(DATABASE_URL)
+DATABASE_URL = "mysql+pymysql://root@127.0.0.1:3306/abc"
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
