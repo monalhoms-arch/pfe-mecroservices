@@ -10,6 +10,7 @@ export default function MarketplaceTab() {
   const [locStatus, setLocStatus] = useState('لم يتم تحديد الموقع')
   const [loadingId, setLoadingId] = useState(null)
   const [fetching, setFetching] = useState(true)
+  const [autoSend, setAutoSend] = useState(true)
 
   // جلب البيانات من الميكروسيرفس (Port 8000)
   useEffect(() => {
@@ -60,17 +61,24 @@ export default function MarketplaceTab() {
       customer_name: custName,
       appointment_datetime: apptDate || null,
       latitude: location.lat,
-      longitude: location.lng
+      longitude: location.lng,
+      auto_send: autoSend // السيرفر يرسل آلياً إذا كانت القيمة true
     }
 
     try {
       const res = await fetch('http://127.0.0.1:8000/api/v1/marketplace/send-to-provider', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-API-Key': 'my_super_secret_key_123'
+        },
         body: JSON.stringify(body)
       })
       const data = await res.json()
-      if (data.status === 'processing') {
+      
+      if (data.status === 'sent') {
+        showToast('تم إرسال الطلب آلياً إلى المزود بنجاح! 🚀', 'success')
+      } else if (data.status === 'processing') {
         window.open(data.redirect, '_blank')
         showToast('جاري فتح واتساب...', 'success')
       } else {
@@ -134,9 +142,17 @@ export default function MarketplaceTab() {
             <input type="datetime-local" className="input-field" value={apptDate} onChange={e => setApptDate(e.target.value)} />
           </div>
         </div>
-        <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <button className="btn btn-gps btn-sm" onClick={handleGetLocation}>📍 رصد موقعي الجغرافي</button>
-          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{locStatus}</span>
+        <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <button className="btn btn-gps btn-sm" onClick={handleGetLocation}>📍 رصد موقعي الجغرافي</button>
+            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{locStatus}</span>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(37, 211, 102, 0.1)', padding: '6px 12px', borderRadius: '12px', cursor: 'pointer' }} onClick={() => setAutoSend(!autoSend)}>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: autoSend ? 'var(--accent-whatsapp)' : 'var(--text-muted)' }}>
+              {autoSend ? '⚡ إرسال آلي مفعل' : '🖱️ إرسال يدوي'}
+            </span>
+          </div>
         </div>
       </div>
 
