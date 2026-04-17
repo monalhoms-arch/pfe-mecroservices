@@ -1,52 +1,57 @@
 # 🛠️ Khidmati Microservices Platform (منصة خدمتي)
 
-Welcome to the **Khidmati** monorepo. This project is a modern, decoupled microservices architecture designed for a SaaS labor rental management system. It features a stunning React-based dashboard interacting with multiple Python FastAPI services.
+Welcome to the **Khidmati** ecosystem. This project is a professional-grade, decoupled microservices architecture designed for a SaaS labor rental management system. It merges a premium React-based dashboard with multiple Python FastAPI services, all powered by a shared MySQL database.
 
 ---
 
 ## 🏗️ Project Architecture
 
-The system is divided into four main components:
+The system is built on a "Service-Oriented" philosophy, where each core function resides in its own isolated environment:
 
-1.  **[API Dashboard](./api-dashboard)** (Port 5173): A premium React/Vite frontend using modern aesthetics (Glassmorphism) to manage all services.
-2.  **[WhatsApp Service](./whatsapp)** (Port 8000): Handles Security, OTP verification, and asynchronous notifications via Evolution API.
-3.  **[GPS & Maps Service](./gps)** (Port 8001): Generates cross-platform map links and provides interactive coordinates formatting.
-4.  **[PDF Invoice Service](./pdf)** (Port 8002): Generates professional PDF invoices for clients and providers.
+1.  **[API Dashboard (Frontend)](./api-dashboard)** (Port 5173): A high-end React/Vite interface using **Glassmorphism** aesthetics. It provides a unified view of the marketplace and admin control tools.
+2.  **[WhatsApp Service](./whatsapp)** (Port 8000): The central hub for communication. It handles:
+    *   **Marketplace logic**: Dynamic worker directory & appointment booking.
+    *   **Security**: OTP verification via Evolution API.
+    *   **Notifications**: Automated reminders stored in MySQL.
+3.  **[PDF Invoice Service](./pdf)** (Port 8002): An automated engine that generates professional PDF documents and **logs financial transactions** directly into the shared database.
+4.  **[GPS & Maps Service](./gps)** (Port 8001): A utility for generating map links and tracking mobile coordinates.
+
+---
+
+## 🗄️ Database Integration
+
+Unlike basic prototypes, Khidmati uses a real-time **MySQL** persistence layer:
+- **`abc.sql`**: Contains the full schema for `provider`, `appointments`, and `invoices`.
+- **Shared Data**: Microservices 8000 and 8002 synchronize data through this database to ensure consistency across the platform.
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-*   **Python 3.10+** (for backend services)
-*   **Node.js & npm** (for the dashboard)
-*   **Redis** (required by the WhatsApp service for OTP rate limiting)
-*   **Evolution API** (configured instance for real WhatsApp messaging)
+*   **MySQL Server**: (e.g., XAMPP or Laragon) with a database named `abc`.
+*   **Python 3.10+** & **Node.js**.
+*   **Redis**: (Optional, for advanced OTP rate limiting).
 
-### Installation & Execution
+### Installation & Setup
 
-#### 1. WhatsApp Service (Security & OTP)
+#### 1. Database Setup
+Import the [abc.sql](./abc.sql) file into your MySQL server to populate the providers and structure.
+
+#### 2. Backend Services
+Run each service in a separate terminal:
 ```bash
-cd whatsapp
-pip install -r requirements.txt
-python main.py
+# WhatsApp & Marketplace (Port 8000)
+cd whatsapp && pip install -r requirements.txt && python main.py
+
+# PDF Engine (Port 8002)
+cd pdf && pip install -r requirements.txt && python main.py
+
+# GPS Utility (Port 8001)
+cd gps && pip install -r requirements.txt && python main.py
 ```
 
-#### 2. GPS & Maps Service
-```bash
-cd gps
-pip install -r requirements.txt
-python main.py
-```
-
-#### 3. PDF Invoice Service
-```bash
-cd pdf
-pip install -r requirements.txt
-python main.py
-```
-
-#### 4. API Dashboard (Frontend)
+#### 3. Frontend Dashboard
 ```bash
 cd api-dashboard
 npm install
@@ -55,20 +60,16 @@ npm run dev
 
 ---
 
-## 🔐 Configuration
-Ensure you have the following environment variables or configuration files set:
-*   **WhatsApp Service**: Check `whatsapp/config.py` for Evolution API URLs and keys.
-*   **Dashboard**: Defaults connect to `localhost` on ports 8000, 8001, and 8002.
+## 🎨 Key Features
+*   **🌟 Marketplace**: Real-time worker directory fetched from the DB.
+*   **📄 PDF Invoicing**: Automatic invoice generation with database archiving.
+*   **💬 Dual WhatsApp Redirection**: Simultaneous PDF receipt and provider notification.
+*   **📍 Location Tracking**: One-click geolocation sharing for field workers.
+*   **💎 Premium UI**: Matte/Glass finish with smooth RTL (Arabic) support.
 
 ---
 
-## 🎨 Design Philosophy
-The platform prioritizes **Visual Excellence**:
-*   **Modern UI**: Built with Vanilla CSS for maximum performance and customizability.
-*   **Glassmorphism**: Elegant transparent cards and vibrant gradients.
-*   **Responsive**: Fully functional on desktop and mobile browsers.
+## 📄 Final Notes
+This project was developed as a "Gold Master" version for a graduation project (PFE 2026), showcasing the power of Microservices and modern Web technologies.
 
----
-
-## 📄 License
-Created for the PFE project. All rights reserved.
+Created with ❤️ for the Khidmati Platform.
