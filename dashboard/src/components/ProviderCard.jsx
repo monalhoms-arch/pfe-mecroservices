@@ -7,15 +7,17 @@ export default function ProviderCard({
   location, 
   showToast 
 }) {
-  const [status, setStatus] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [statusText, setStatusText] = useState('')
 
   const handleWhatsApp = async () => {
     if (!customerName.trim()) {
-      showToast('يرجى كتابة اسمك أولاً')
+      showToast('يرجى كتابة اسمك أولاً لضمان وصول الطلب بشكل صحيح')
       return
     }
 
-    setStatus('⏳ جاري المعالجة...')
+    setLoading(true)
+    setStatusText('⏳ جاري تأمين الاتصال...')
     
     const body = {
       provider_id: provider.id,
@@ -36,28 +38,31 @@ export default function ProviderCard({
       if (data.status === 'processing') {
         window.location.href = data.redirect
       } else {
-        showToast('حدث خطأ غير متوقع')
-        setStatus('')
+        showToast('فشل في معالجة طلب الواتساب')
+        setLoading(false)
+        setStatusText('')
       }
     } catch (error) {
-      showToast('❌ تأكد من تشغيل السيرفر (Port 8000)')
-      setStatus('')
+      showToast('⚠️ خطأ: تأكد من تشغيل خادم WhatsApp Hub (Port 8000)')
+      setLoading(false)
+      setStatusText('')
     }
   }
 
   const handleInvoice = async () => {
     if (!customerName.trim()) {
-      showToast('يرجى كتابة اسمك أولاً')
+      showToast('يرجى كتابة اسمك أولاً لإنشاء الفاتورة')
       return
     }
 
-    const price = prompt('أدخل سعر الخدمة بالدينار الجزائري:')
+    const price = prompt('أدخل سعر الخدمة المتفق عليه (بالدينار الجزائري):')
     if (!price || isNaN(parseFloat(price))) {
-      showToast('سعر غير صحيح')
+      showToast('يرجى إدخال مبلغ صحيح')
       return
     }
 
-    setStatus('⏳ جاري إنشاء الفاتورة...')
+    setLoading(true)
+    setStatusText('📄 جاري توليد فاتورة PDF...')
 
     const body = {
       provider_id: provider.id,
@@ -75,46 +80,77 @@ export default function ProviderCard({
       const data = await res.json()
 
       if (data.status === 'success') {
-        setStatus(`✅ الفاتورة جاهزة: ${data.invoice_id}`)
-        showToast('تم إنشاء الفاتورة بنجاح!')
+        showToast('✅ تم إصدار الفاتورة بنجاح')
+        setStatusText(`الفاتورة: ${data.invoice_id}`)
+        setLoading(false)
+        
         window.open(data.invoice_url, '_blank')
         
-        // Optional re-redirect for whatsapp
         setTimeout(() => {
-          if (window.confirm('هل تريد إرسال رابط الفاتورة للمزود عبر واتساب؟')) {
+          if (window.confirm('تم تجهيز الفاتورة. هل ترغب في إرسال الرابط للمزود؟')) {
             window.location.href = data.whatsapp_redirect
           }
-        }, 800)
+        }, 500)
       } else {
-        showToast('فشل إنشاء الفاتورة')
-        setStatus('')
+        showToast('فشل في توليد ملف الفاتورة')
+        setLoading(false)
+        setStatusText('')
       }
     } catch {
-      showToast('❌ تعذر الاتصال بالسيرفر')
-      setStatus('')
+      showToast('⚠️ خطأ: تأكد من تشغيل خادم PDF Engine (Port 8002)')
+      setLoading(false)
+      setStatusText('')
     }
   }
 
   return (
-    <div className="premium-card worker-card">
-      <div className="worker-avatar">{provider.avatar}</div>
-      <h4 className="worker-name">{provider.name}</h4>
-      <p className="worker-job">{provider.job}</p>
-      
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <button className="btn btn-primary" style={{ width: '100%' }} onClick={handleWhatsApp}>
-          تواصل عبر واتساب 💬
-        </button>
-        <button className="btn btn-ghost" style={{ width: '100%' }} onClick={handleInvoice}>
-          🧾 إنشاء فاتورة PDF
-        </button>
+    <div className="glass-pane worker-card fade-in-up">
+      <div className="avatar-circle">
+        {provider.avatar}
       </div>
       
-      {status && (
-        <div style={{ marginTop: '12px', fontSize: '11px', color: 'var(--text-secondary)' }}>
-          {status}
+      <div className="worker-details">
+        <h3>{provider.name}</h3>
+        <span className="tag">
+          {provider.id === 1 ? '⚡ ' : provider.id === 2 ? '💧 ' : '🛠️ '}
+          {provider.job}
+        </span>
+      </div>
+
+      <div style={{ padding: '0 8px' }}>
+        <button 
+          className="btn-premium btn-primary" 
+          disabled={loading}
+          onClick={handleWhatsApp}
+        >
+          {loading ? 'جاري التحويل...' : 'توصيل عبر واتساب 💬'}
+        </button>
+        
+        <button 
+          className="btn-premium btn-outline" 
+          disabled={loading}
+          onClick={handleInvoice}
+        >
+          🧾 تفويض فاتورة PDF
+        </button>
+      </div>
+
+      {statusText && (
+        <div style={{ 
+          marginTop: '20px', 
+          fontSize: '11px', 
+          color: 'var(--primary)',
+          background: 'rgba(16, 185, 129, 0.05)',
+          padding: '8px',
+          borderRadius: '8px'
+        }}>
+          {statusText}
         </div>
       )}
+      
+      <div style={{ marginTop: '16px', fontSize: '10px', color: 'var(--text-muted)' }}>
+        ● متاح حالياً للحجز الفوري
+      </div>
     </div>
   )
 }
