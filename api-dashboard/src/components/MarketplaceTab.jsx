@@ -112,6 +112,27 @@ export default function MarketplaceTab() {
       if (data.status === 'success') {
         showToast('تم إنشاء الفاتورة بنجاح', 'success')
         window.open(data.download_url, '_blank')
+        
+        // ⚡ ميزة الإرسال الآلي للفاتورة
+        if (autoSend) {
+          try {
+            await fetch('http://127.0.0.1:8000/api/v1/notifications/send', {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'X-API-Key': 'my_super_secret_key_123'
+              },
+              body: JSON.stringify({
+                phone_number: p.phone,
+                message: `📄 فاتورة جديدة صادرة لـ ${custName}.\nنوع الخدمة: ${p.job || 'عامة'}\nالمبلغ: ${price} DZD\nرابط التحميل: ${data.download_url}`,
+                account_type: 'provider'
+              })
+            })
+            showToast('تم إرسال رابط الفاتورة للمزود عبر واتساب آلياً 📨', 'info')
+          } catch (e) {
+            console.error('Failed to auto-send invoice link', e)
+          }
+        }
       }
     } catch (err) {
       showToast('خطأ في الاتصال بسيرفر الفواتير', 'error')
