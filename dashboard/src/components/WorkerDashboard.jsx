@@ -37,7 +37,7 @@ export default function WorkerDashboard() {
           <section className="glass-card" style={{ marginBottom: '24px' }}>
             <div className="section-head">
               <h3 className="section-title">آخر عمليات الاستئجار</h3>
-              <button style={{ background: 'none', border: 'none', color: var(--primary), cursor: 'pointer', fontSize: '13px', fontWeight: '700' }}>عرض الكل ←</button>
+              <button style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '13px', fontWeight: '700' }}>عرض الكل ←</button>
             </div>
             
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right' }}>
@@ -64,9 +64,9 @@ export default function WorkerDashboard() {
                         padding: '4px 10px', 
                         borderRadius: '20px', 
                         fontSize: '11px', 
-                        background: `${row.color}15`, 
+                        background: 'rgba(255,255,255,0.05)', 
                         color: row.color,
-                        border: `1px solid ${row.color}30`
+                        border: `1px solid ${row.color}`
                       }}>
                         {row.status}
                       </span>
