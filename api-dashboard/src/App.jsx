@@ -8,6 +8,7 @@ import PdfTab from './components/PdfTab'
 import GpsTab from './components/GpsTab'
 import MarketplaceTab from './components/MarketplaceTab'
 import WorkerManagement from './components/WorkerManagement'
+import AutomationTab from './components/AutomationTab'
 import Toast from './components/Toast'
 
 export const ToastContext = React.createContext(null)
@@ -30,6 +31,7 @@ function App() {
             {activeTab === 'dashboard'   && <Dashboard />}
             {activeTab === 'marketplace' && <MarketplaceTab />}
             {activeTab === 'workers'     && <WorkerManagement />}
+            {activeTab === 'automation'  && <AutomationTab />}
             {activeTab === 'whatsapp'    && <WhatsAppTab />}
             {activeTab === 'pdf'         && <PdfTab />}
             {activeTab === 'gps'         && <GpsTab />}
