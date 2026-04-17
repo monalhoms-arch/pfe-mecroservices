@@ -15,10 +15,15 @@ export default function MarketplaceTab() {
   useEffect(() => {
     const fetchProviders = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/v1/marketplace/providers')
-        const data = await res.json()
-        setProviders(data)
+        const url = `http://127.0.0.1:8000/api/v1/marketplace/providers?t=${new Date().getTime()}`;
+        console.log("DEBUG FRONTEND: Fetching from", url);
+        const res = await fetch(url);
+        console.log("DEBUG FRONTEND: Response Status", res.status);
+        const data = await res.json();
+        console.log("DEBUG FRONTEND: Data length", data.length, data);
+        setProviders(data);
       } catch (err) {
+        console.error("DEBUG FRONTEND ERROR:", err);
         showToast('فشل جلب قائمة العمال من قاعدة البيانات', 'error')
       } finally {
         setFetching(false)
