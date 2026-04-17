@@ -1,4 +1,7 @@
 fastapi
-uvicorn[standard]
+uvicorn
+fpdf
+sqlalchemy
+pymysql
 pydantic
-fpdf2
+python-multipart
