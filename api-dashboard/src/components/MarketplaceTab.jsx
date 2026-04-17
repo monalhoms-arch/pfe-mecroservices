@@ -1,19 +1,31 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { ToastContext } from '../App'
-
-const PROVIDERS = [
-  { id: 1, name: 'أحمد محمد', job: 'فني كهرباء (صيانة عامة)', avatar: 'أ' },
-  { id: 2, name: 'سليم بن عيسى', job: 'سباك صحي (تمديدات)', avatar: 'س' },
-  { id: 3, name: 'ياسين حامد', job: 'مصلح أجهزة (إلكترونيات)', avatar: 'ي' }
-]
 
 export default function MarketplaceTab() {
   const showToast = useContext(ToastContext)
+  const [providers, setProviders] = useState([])
   const [custName, setCustName] = useState('')
   const [apptDate, setApptDate] = useState('')
   const [location, setLocation] = useState({ lat: null, lng: null })
   const [locStatus, setLocStatus] = useState('لم يتم تحديد الموقع')
   const [loadingId, setLoadingId] = useState(null)
+  const [fetching, setFetching] = useState(true)
+
+  // جلب البيانات من الميكروسيرفس (Port 8000)
+  useEffect(() => {
+    const fetchProviders = async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/api/v1/marketplace/providers')
+        const data = await res.json()
+        setProviders(data)
+      } catch (err) {
+        showToast('فشل جلب قائمة العمال من قاعدة البيانات', 'error')
+      } finally {
+        setFetching(false)
+      }
+    }
+    fetchProviders()
+  }, [])
 
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
@@ -47,43 +59,48 @@ export default function MarketplaceTab() {
     }
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/send-to-provider', {
+      const res = await fetch('http://127.0.0.1:8000/api/v1/marketplace/send-to-provider', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       })
       const data = await res.json()
       if (data.status === 'processing') {
-        window.location.href = data.redirect
+        window.open(data.redirect, '_blank')
+        showToast('جاري فتح واتساب...', 'success')
+      } else {
+        showToast('حدث خطأ في الخادم', 'error')
       }
     } catch {
       showToast('خطأ في الاتصال بسيرفر الواتساب', 'error')
     } finally { setLoadingId(null) }
   }
 
-  const handleInvoice = async (pId) => {
+  const handleInvoice = async (p) => {
     if (!custName.trim()) return showToast('يرجى كتابة اسم الزبون أولاً', 'error')
-    const price = prompt('أدخل سعر الخدمة (DZD):')
+    const price = prompt(`أدخل سعر الخدمة لـ ${p.full_name} (DZD):`)
     if (!price || isNaN(price)) return showToast('سعر غير صحيح', 'error')
 
-    setLoadingId(pId + '-inv')
+    setLoadingId(p.id + '-inv')
     try {
-      const res = await fetch('http://127.0.0.1:8000/create-invoice', {
+      const res = await fetch('http://127.0.0.1:8002/api/v1/generate-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          provider_id: pId,
+          provider_id: p.id,
+          provider_name: p.full_name,
+          provider_details: p.job,
           customer_name: custName,
-          service_price: parseFloat(price),
-          appointment_datetime: apptDate || null
+          items: [{ description: p.job || 'صيانة عامة', price: parseFloat(price), quantity: 1 }],
+          currency: 'DZD'
         })
       })
       const data = await res.json()
       if (data.status === 'success') {
         showToast('تم إنشاء الفاتورة بنجاح', 'success')
-        window.open(data.invoice_url, '_blank')
+        window.open(data.download_url, '_blank')
       }
-    } catch {
+    } catch (err) {
       showToast('خطأ في الاتصال بسيرفر الفواتير', 'error')
     } finally { setLoadingId(null) }
   }
@@ -94,8 +111,8 @@ export default function MarketplaceTab() {
         <div className="page-header-top">
           <div className="page-icon page-icon-whatsapp">🏪</div>
           <div>
-            <h1>سوق العمل (Marketplace)</h1>
-            <p>حجز العمال الميدانيين والتواصل المباشر معهم</p>
+            <h1>سوق العمل الذكي (Real Database)</h1>
+            <p>يتم جلب بيانات العمال مباشرة من قاعدة البيانات abc عبر الـ Microservices</p>
           </div>
         </div>
       </div>
@@ -118,26 +135,37 @@ export default function MarketplaceTab() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginTop: '30px' }}>
-        {PROVIDERS.map(p => (
-          <div key={p.id} className="glass-card section-card" style={{ textAlign: 'center', transition: 'transform 0.2s' }}>
-            <div style={{ width: '60px', height: '60px', background: 'var(--port-wa-bg)', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 15px', fontSize: '24px', fontWeight: 'bold' }}>
-              {p.avatar}
-            </div>
-            <h3 style={{ fontSize: '17px', marginBottom: '4px' }}>{p.name}</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px' }}>{p.job}</p>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button className="btn btn-whatsapp" onClick={() => handleWhatsApp(p.id)} disabled={loadingId === p.id}>
-                {loadingId === p.id ? 'جاري الاتصال...' : 'تواصل عبر واتساب 💬'}
-              </button>
-              <button className="btn btn-ghost" onClick={() => handleInvoice(p.id)} disabled={loadingId === p.id + '-inv'}>
-                {loadingId === p.id + '-inv' ? 'جاري التوليد...' : '🧾 فاتورة PDF'}
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      {fetching ? (
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <span className="spinner" style={{ borderTopColor: 'var(--accent-whatsapp)' }} />
+          <p style={{ marginTop: '10px' }}>جاري التحميل من قاعدة البيانات...</p>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginTop: '30px' }}>
+          {providers.length > 0 ? (
+            providers.map(p => (
+              <div key={p.id} className="glass-card section-card" style={{ textAlign: 'center' }}>
+                <div style={{ width: '60px', height: '60px', background: 'var(--accent-whatsapp)', color: '#000', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 15px', fontSize: '24px', fontWeight: 'bold' }}>
+                  {p.full_name[0]}
+                </div>
+                <h3 style={{ fontSize: '17px', marginBottom: '4px' }}>{p.full_name}</h3>
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px' }}>{p.job}</p>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <button className="btn btn-whatsapp" onClick={() => handleWhatsApp(p.id)} disabled={loadingId === p.id}>
+                    {loadingId === p.id ? 'جاري الاتصال...' : 'تواصل عبر واتساب 💬'}
+                  </button>
+                  <button className="btn btn-ghost" onClick={() => handleInvoice(p)} disabled={loadingId === p.id + '-inv'}>
+                    {loadingId === p.id + '-inv' ? 'جاري التوليد...' : '🧾 فاتورة PDF'}
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>لا يوجد عمال مسجلين في قاعدة البيانات حالياً.</p>
+          )}
+        </div>
+      )}
     </div>
   )
 }

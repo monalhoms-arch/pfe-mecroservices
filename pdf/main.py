@@ -12,6 +12,28 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from fpdf import FPDF
 
+# Database Integration (MySQL for abc.sql)
+from sqlalchemy import create_engine, Column, Integer, String, DECIMAL, TIMESTAMP, text
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+DATABASE_URL = "mysql+pymysql://root@localhost/abc"
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+class InvoiceDB(Base):
+    __tablename__ = "invoices"
+    id = Column(Integer, primary_key=True, index=True)
+    invoice_code = Column(String(20), unique=True, nullable=False)
+    provider_id = Column(Integer, nullable=False)
+    customer_name = Column(String(100), nullable=False)
+    service_price = Column(DECIMAL(10, 2), nullable=False)
+    pdf_path = Column(String(255))
+    created_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
+
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI(title="PDF Generation Service", description="A standalone service for generating generic PDF invoices.")
 
 app.add_middleware(
@@ -24,24 +46,21 @@ app.add_middleware(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 INVOICES_DIR = os.path.join(BASE_DIR, "invoices")
 FONTS_DIR = os.path.join(BASE_DIR, "fonts")
-FONT_URL = "https://github.com/google/fonts/raw/main/ofl/amiri/Amiri-Regular.ttf"
+FONT_URL = "https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-Regular.ttf"
 FONT_PATH = os.path.join(FONTS_DIR, "Amiri-Regular.ttf")
 
 os.makedirs(INVOICES_DIR, exist_ok=True)
 os.makedirs(FONTS_DIR, exist_ok=True)
 app.mount("/invoices", StaticFiles(directory=INVOICES_DIR), name="invoices")
 
-# تأكد من تحميل الخط العربي عند التشغيل
+# Ensure fonts are loaded
 if not os.path.exists(FONT_PATH):
     try:
-        print("Downloading Amiri Font for Arabic Support...")
         urllib.request.urlretrieve(FONT_URL, FONT_PATH)
-        print("Font downloaded successfully.")
     except Exception as e:
-        print(f"Failed to download font from {FONT_URL}: {e}")
-        print("PDF generation may fail for Arabic/non-Latin text without a Unicode font.")
+        print(f"Font download failed: {e}")
 
-# ──────── النماذج ────────
+# Models
 class InvoiceItem(BaseModel):
     description: str
     price: float
@@ -49,6 +68,7 @@ class InvoiceItem(BaseModel):
 
 class InvoiceRequest(BaseModel):
     invoice_title: str = "INVOICE"
+    provider_id: int = 1 # Added provider_id for database tracking
     customer_name: str
     customer_details: Optional[str] = None
     provider_name: str
@@ -57,134 +77,93 @@ class InvoiceRequest(BaseModel):
     currency: str = "DZD"
     notes: Optional[str] = None
 
-# ──────── دالة التوليد ────────
 def generate_pdf(data: InvoiceRequest, invoice_id: str):
     pdf = FPDF()
     pdf.add_page()
-    
     if os.path.exists(FONT_PATH):
         pdf.add_font("Amiri", "", FONT_PATH, uni=True)
         f = "Amiri"
-        pdf.set_font(f, size=20)
     else:
         f = "Helvetica"
-        pdf.set_font(f, size=20)
+    pdf.set_font(f, size=20)
     
-    # رأس الفاتورة
-    pdf.set_fill_color(37, 211, 102) # اللون الأخضر
+    # Header
+    pdf.set_fill_color(37, 211, 102)
     pdf.rect(0, 0, 210, 35, "F")
     pdf.set_text_color(255, 255, 255)
     pdf.set_xy(10, 10)
     pdf.cell(190, 15, data.invoice_title, align="C")
 
-    # بيانات الفاتورة الأساسية
+    # Metadata
     pdf.set_text_color(0, 0, 0)
     pdf.set_xy(10, 45)
     pdf.set_font(f, size=12)
     pdf.cell(190, 10, f"Invoice ID: {invoice_id}", ln=True)
     pdf.cell(190, 10, f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M')}", ln=True)
-    pdf.ln(5)
-
-    pdf.set_draw_color(200, 200, 200)
-    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-    pdf.ln(8)
-
-    # بيانات الموفر والزبون
-    pdf.set_font(f, size=11)
-    pdf.set_fill_color(245, 245, 245)
-    start_y = pdf.get_y()
-    pdf.rect(10, start_y, 190, 45, "F")
     
-    pdf.set_xy(15, start_y + 5)
-    pdf.cell(90, 8, f"From: {data.provider_name}")
-    pdf.cell(90, 8, f"To: {data.customer_name}", ln=True)
-    
-    pdf.set_xy(15, pdf.get_y())
-    if data.provider_details:
-        pdf.cell(90, 8, f"Details: {data.provider_details}")
-    else:
-        pdf.cell(90, 8, "")
-        
-    if data.customer_details:
-        pdf.cell(90, 8, f"Details: {data.customer_details}", ln=True)
-    else:
-        pdf.cell(90, 8, "", ln=True)
-
-    pdf.ln(15)
-
-    # جدول المشتريات / الخدمات
+    # Items
+    pdf.ln(20)
     pdf.set_fill_color(37, 211, 102)
     pdf.set_text_color(255, 255, 255)
-    pdf.cell(90, 10, "Description", fill=True, border=1)
-    pdf.cell(30, 10, "Quantity", fill=True, border=1, align="C")
-    pdf.cell(40, 10, "Unit Price", fill=True, border=1, align="C")
+    pdf.cell(100, 10, "Description", fill=True, border=1)
+    pdf.cell(30, 10, "Qty", fill=True, border=1, align="C")
+    pdf.cell(30, 10, "Price", fill=True, border=1, align="C")
     pdf.cell(30, 10, "Total", fill=True, border=1, align="C", ln=True)
 
     pdf.set_text_color(0, 0, 0)
+    pdf.set_font(f, size=10)
     grand_total = 0
-
     for item in data.items:
         total = item.price * item.quantity
         grand_total += total
-        pdf.cell(90, 10, item.description, border=1)
+        pdf.cell(100, 10, item.description, border=1)
         pdf.cell(30, 10, str(item.quantity), border=1, align="C")
-        pdf.cell(40, 10, f"{item.price:,.2f}", border=1, align="C")
-        pdf.cell(30, 10, f"{total:,.2f}", border=1, align="C", ln=True)
+        pdf.cell(30, 10, f"{item.price:,.0f}", border=1, align="C")
+        pdf.cell(30, 10, f"{total:,.0f}", border=1, align="C", ln=True)
 
-    # المجموع الكلي
-    pdf.set_fill_color(230, 255, 230)
-    pdf.set_font(f, size=12)
-    pdf.cell(160, 12, "GRAND TOTAL", border=1, fill=True, align="R")
-    pdf.cell(30,  12, f"{grand_total:,.2f} {data.currency}", border=1, fill=True, align="C", ln=True)
+    pdf.cell(160, 12, "GRAND TOTAL", border=1, align="R")
+    pdf.cell(30, 12, f"{grand_total:,.0f} {data.currency}", border=1, align="C", ln=True)
 
-    if data.notes:
-        pdf.ln(10)
-        pdf.set_font(f, size=10)
-        pdf.multi_cell(190, 8, f"Notes: {data.notes}")
-
-    pdf.ln(10)
-    pdf.set_font(f, size=9)
-    pdf.set_text_color(120, 120, 120)
-    pdf.cell(190, 8, "Generated Automatically | Thank you for your business", align="C")
-
-    # حفظ الملف
     file_path = os.path.join(INVOICES_DIR, f"{invoice_id}.pdf")
     pdf.output(file_path)
-    return file_path
+    return file_path, grand_total
 
-# ──────── الـ API ────────
 @app.post("/api/v1/generate-pdf")
 async def create_pdf_invoice(request: Request, payload: InvoiceRequest):
+    db = SessionLocal()
     try:
         invoice_id = str(uuid.uuid4())[:8].upper()
-        generate_pdf(payload, invoice_id)
+        file_path, total_price = generate_pdf(payload, invoice_id)
         
+        # Log to Database
+        new_invoice = InvoiceDB(
+            invoice_code=invoice_id,
+            provider_id=payload.provider_id,
+            customer_name=payload.customer_name,
+            service_price=total_price,
+            pdf_path=file_path
+        )
+        db.add(new_invoice)
+        db.commit()
+
         download_url = str(request.url_for("download_invoice", invoice_id=invoice_id))
-        
         return {
             "status": "success",
             "invoice_id": invoice_id,
             "download_url": download_url
         }
     except Exception as e:
+        db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
 
 @app.get("/api/v1/files/{invoice_id}", name="download_invoice")
 async def download_invoice(invoice_id: str):
     file_path = os.path.join(INVOICES_DIR, f"{invoice_id}.pdf")
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Invoice not found")
-    return FileResponse(
-        file_path,
-        media_type="application/pdf",
-        headers={"Content-Disposition": f"attachment; filename=\"{invoice_id}.pdf\""}
-    )
-
-@app.get("/api/v1/invoices/{invoice_id}")
-async def download_invoice_legacy(invoice_id: str):
-    """Legacy route for old client links. Use /api/v1/files/ instead."""
-    return await download_invoice(invoice_id)
+    return FileResponse(file_path, media_type="application/pdf")
 
 if __name__ == "__main__":
-    # تشغيل السيرفر على المنفذ 8002
     uvicorn.run(app, host="127.0.0.1", port=8002)
