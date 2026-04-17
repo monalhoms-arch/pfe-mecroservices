@@ -48,7 +48,7 @@ export default function ArchitectureMonitor() {
 
       <div className="architecture-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px', position: 'relative' }}>
         {/* Core - WhatsApp */}
-        <div style={{ textAlign: 'center', z-index: 2 }}>
+        <div style={{ textAlign: 'center', zIndex: 2 }}>
           <div style={{ padding: '20px', borderRadius: '20px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid var(--primary)' }}>
             <span style={{ fontSize: '32px' }}>💬</span>
             <h4 style={{ fontSize: '16px', marginTop: '10px' }}>WhatsApp Hub</h4>
@@ -58,7 +58,7 @@ export default function ArchitectureMonitor() {
         </div>
 
         {/* Satellite 1 - GPS */}
-        <div style={{ textAlign: 'center', z-index: 2 }}>
+        <div style={{ textAlign: 'center', zIndex: 2 }}>
           <div style={{ padding: '20px', borderRadius: '20px', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid var(--secondary)' }}>
             <span style={{ fontSize: '32px' }}>📍</span>
             <h4 style={{ fontSize: '16px', marginTop: '10px' }}>GPS Analytics</h4>
@@ -68,7 +68,7 @@ export default function ArchitectureMonitor() {
         </div>
 
         {/* Satellite 2 - PDF */}
-        <div style={{ textAlign: 'center', z-index: 2 }}>
+        <div style={{ textAlign: 'center', zIndex: 2 }}>
           <div style={{ padding: '20px', borderRadius: '20px', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid var(--accent)' }}>
             <span style={{ fontSize: '32px' }}>📄</span>
             <h4 style={{ fontSize: '16px', marginTop: '10px' }}>Invoice Engine</h4>
