@@ -18,6 +18,15 @@ const TABS = [
     activeClass: 'active-whatsapp',
   },
   {
+    id: 'workers',
+    icon: '👷',
+    title: 'Management',
+    sub: 'Staff Control',
+    port: '8000',
+    portClass: 'port-whatsapp',
+    activeClass: 'active-whatsapp',
+  },
+  {
     id: 'whatsapp',
     icon: '💬',
     title: 'WhatsApp',
