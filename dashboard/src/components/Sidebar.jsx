@@ -1,12 +1,12 @@
 import React from 'react'
 
 const MENU_ITEMS = [
-  { id: 'dashboard', label: 'لوحة التحكم', icon: '📊' },
-  { id: 'workers',   label: 'إدارة العمال', icon: '👷' },
-  { id: 'rentals',   label: 'طلبات الاستئجار', icon: '📝' },
-  { id: 'clients',   label: 'قاعدة العملاء', icon: '👥' },
-  { id: 'tools',     label: 'أدوات مكملة', icon: '🛠️' },
-  { id: 'settings',  label: 'الإعدادات', icon: '⚙️' },
+  { id: 'dashboard', label: 'سوق العمل', icon: '🏪' },
+  { id: 'reminders',  label: 'التذكيرات', icon: '🔔' },
+  { id: 'divider',   type: 'divider' },
+  { id: 'admin-wa',  label: 'بوابة الواتساب', icon: '🔐' },
+  { id: 'admin-pdf', label: 'محرك الفواتير', icon: '📄' },
+  { id: 'admin-gps', label: 'نظام المواقع', icon: '📍' },
 ]
 
 export default function Sidebar({ activeTab, setActiveTab }) {
@@ -19,18 +19,22 @@ export default function Sidebar({ activeTab, setActiveTab }) {
 
       <nav className="nav-group">
         {MENU_ITEMS.map((item) => (
-          <a
-            key={item.id}
-            href="#"
-            className={`nav-link ${activeTab === item.id ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault()
-              setActiveTab(item.id)
-            }}
-          >
-            <span style={{ fontSize: '20px' }}>{item.icon}</span>
-            <span>{item.label}</span>
-          </a>
+          item.type === 'divider' ? (
+            <div key={item.id} style={{ height: '1px', background: 'var(--glass-border)', margin: '16px 8px' }} />
+          ) : (
+            <a
+              key={item.id}
+              href="#"
+              className={`nav-link ${activeTab === item.id ? 'active' : ''}`}
+              onClick={(e) => {
+                e.preventDefault()
+                setActiveTab(item.id)
+              }}
+            >
+              <span style={{ fontSize: '20px' }}>{item.icon}</span>
+              <span>{item.label}</span>
+            </a>
+          )
         ))}
       </nav>
 

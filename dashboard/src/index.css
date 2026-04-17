@@ -202,12 +202,27 @@ body {
   font-family: inherit;
   font-size: 14px;
   transition: border-color 0.3s;
+  outline: none;
+}
+
+select.input-field {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 1rem center;
+  background-size: 1em;
+  padding-left: 2.5rem;
+}
+
+textarea.input-field {
+  resize: vertical;
+  min-height: 100px;
 }
 
 .input-field:focus {
   border-color: var(--primary);
-  outline: none;
   background: rgba(0,0,0,0.3);
+  box-shadow: 0 0 15px var(--primary-glow);
 }
 
 /* ── Animations ── */
