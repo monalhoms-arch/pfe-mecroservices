@@ -9,6 +9,15 @@ const TABS = [
     activeClass: 'active-dashboard',
   },
   {
+    id: 'marketplace',
+    icon: '🏪',
+    title: 'Marketplace',
+    sub: 'Worker Rental',
+    port: 'Home',
+    portClass: 'port-home',
+    activeClass: 'active-whatsapp',
+  },
+  {
     id: 'whatsapp',
     icon: '💬',
     title: 'WhatsApp',

@@ -6,6 +6,7 @@ import Dashboard from './components/Dashboard'
 import WhatsAppTab from './components/WhatsAppTab'
 import PdfTab from './components/PdfTab'
 import GpsTab from './components/GpsTab'
+import MarketplaceTab from './components/MarketplaceTab'
 import Toast from './components/Toast'
 
 export const ToastContext = React.createContext(null)
@@ -25,10 +26,11 @@ function App() {
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         <main className="main-content">
           <div className="tab-content fade-in-up" key={activeTab}>
-            {activeTab === 'dashboard' && <Dashboard />}
-            {activeTab === 'whatsapp'  && <WhatsAppTab />}
-            {activeTab === 'pdf'       && <PdfTab />}
-            {activeTab === 'gps'       && <GpsTab />}
+            {activeTab === 'dashboard'   && <Dashboard />}
+            {activeTab === 'marketplace' && <MarketplaceTab />}
+            {activeTab === 'whatsapp'    && <WhatsAppTab />}
+            {activeTab === 'pdf'         && <PdfTab />}
+            {activeTab === 'gps'         && <GpsTab />}
           </div>
         </main>
         {toast && <Toast msg={toast.msg} type={toast.type} />}
