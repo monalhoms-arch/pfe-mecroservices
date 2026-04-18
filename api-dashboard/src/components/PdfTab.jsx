@@ -330,12 +330,15 @@ export default function PdfTab() {
             style={{ width: 18, height: 18, cursor: 'pointer' }}
           />
           <label htmlFor="autoSendCheck" style={{ fontSize: 13, cursor: 'pointer', fontWeight: 600 }}>
-            🚀 إرسال الفاتورة آلياً للزبون عبر واتساب فور صدورها
+            🚀 إرسال الفاتورة آلياً للزبون عبر واتساب فور توليدها
           </label>
         </div>
+        <p style={{ margin: 0, fontSize: 12, color: 'var(--text-secondary)' }}>
+          في حال تفعيل الخيار وإدخال رقم الهاتف، سيتم إرسال رابط الفاتورة تلقائياً بعد الإنشاء.
+        </p>
 
-        <button className="btn btn-pdf" onClick={generatePdf} disabled={loading}>
-          {loading ? <><span className="spinner" /> جاري التوليد...</> : '📄 توليد فاتورة PDF'}
+        <button className="btn btn-pdf" onClick={generatePdf} disabled={loading} style={{ marginTop: 12 }}>
+          {loading ? <><span className="spinner" /> جاري التوليد...</> : autoSend ? '📄 توليد وإرسال عبر واتساب' : '📄 توليد فاتورة PDF'}
         </button>
 
         {response && (

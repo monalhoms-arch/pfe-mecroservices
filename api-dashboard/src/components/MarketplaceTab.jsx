@@ -171,7 +171,7 @@ export default function MarketplaceTab() {
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(37, 211, 102, 0.1)', padding: '6px 12px', borderRadius: '12px', cursor: 'pointer' }} onClick={() => setAutoSend(!autoSend)}>
             <span style={{ fontSize: '12px', fontWeight: '600', color: autoSend ? 'var(--accent-whatsapp)' : 'var(--text-muted)' }}>
-              {autoSend ? '⚡ إرسال آلي مفعل' : '🖱️ إرسال يدوي'}
+              {autoSend ? '⚡ إرسال فاتورة آلياً عبر واتساب' : '🖱️ إرسال يدوي'}
             </span>
           </div>
         </div>
@@ -198,7 +198,7 @@ export default function MarketplaceTab() {
                     {loadingId === p.id ? 'جاري الاتصال...' : 'تواصل عبر واتساب 💬'}
                   </button>
                   <button className="btn btn-ghost" onClick={() => handleInvoice(p)} disabled={loadingId === p.id + '-inv'}>
-                    {loadingId === p.id + '-inv' ? 'جاري التوليد...' : '🧾 فاتورة PDF'}
+                    {loadingId === p.id + '-inv' ? 'جاري التوليد...' : autoSend ? '🧾 فاتورة + إرسال واتساب' : '🧾 فاتورة PDF'}
                   </button>
                 </div>
               </div>
