@@ -1,18 +1,43 @@
-# 🚀 دليل ربط واتساب حقيقي بالمشروع (Evolution API v2)
+# 🚀 Evolution Manager & WhatsApp Gateway Setup Guide (Evolution API v2)
+
+## English / العربية
+
+**This folder contains everything to run real WhatsApp gateway & auto-send messages from "خدمتي" system.**
 
 هذا المجلد يحتوي على كل ما تحتاجه لتشغيل بوابة واتساب حقيقية وإرسال الرسائل آلياً من نظام "خدمتي".
 
 ## 🛠️ خطوات التشغيل
 
-### 1. تشغيل البوابة (Docker)
-تأكد من أن تطبيق **Docker Desktop** يعمل على جهازك، ثم افتح التيرمينال داخل هذا المجلد (`evolution-gate`) وشغل الأمر التالي:
+### 1. Start Services (Docker) / تشغيل الخدمات
+
+**English:** Install Docker Desktop (https://www.docker.com/products/docker-desktop/), start it, then run:
 ```bash
-docker-compose up -d
+cd evolution-gate
+docker compose up -d
 ```
 
-### 2. الوصول لمدير البوابة
-افتح المتصفح واذهب للرابط التالي:
-`http://localhost:8080/manager`
+**Check status:** `docker compose ps` or `docker compose logs evolution_api`
+
+**العربية:** تأكد من تثبيت **Docker Desktop** وتشغيله، ثم:
+```bash
+cd evolution-gate
+docker compose up -d
+```
+تحقق: `docker compose ps` أو `docker compose logs evolution_api`
+
+### 2. Access Evolution Manager / الوصول للمدير
+
+**English:** Open browser: http://localhost:8080  
+**Login first:**  
+- Server URL: `http://localhost:8080`  
+- API Key Global: `my_evolution_token_123`  
+Then go to `/manager`.
+
+**العربية:** افتح المتصفح: http://localhost:8080  
+**تسجيل الدخول:**  
+- Server URL: `http://localhost:8080`  
+- API Key Global: `my_evolution_token_123`  
+ثم `/manager`.
 
 ### 3. إنشاء نسخة (Instance) وربط الهاتف
 *   قم بإنشاء instance جديدة وسمها: `main_instance`.
@@ -21,15 +46,20 @@ docker-compose up -d
 
 ## 🔗 الربط مع مشروعك
 
-لقد قمت بضبط إعدادات الربط مسبقاً في ملف `whatsapp/.env`. تأكد أنها مطابقة لما يلي:
-- `EVOLUTION_API_URL=http://localhost:8080`
-- `EVOLUTION_API_TOKEN=my_evolution_token_123`
-- `EVOLUTION_INSTANCE_NAME=main_instance`
+**API Key source:** evolution-gate/docker-compose.yml (AUTHENTICATION_API_KEY=my_evolution_token_123)
+
+**Integration:** Matches whatsapp/config.py EVOLUTION_API_URL & INSTANCE_NAME=main_instance. Update token if changed.
+
+**العربية:** المفتاح من docker-compose.yml. يطابق إعدادات whatsapp/config.py.
 
 ## ✅ الاختبار النهائي
 اذهب إلى لوحة التحكم (Dashboard) > تبويب **Marketplace** > فعل مفتاح **"الإرسال الآلي"** > اضغط على أي عامل.
 ستجد أن الرسالة وصلت لهاتفه آلياً وبدون فتح أي نافذة!
 
 ---
-> [!TIP]
-> في يوم المناقشة، تأكد من أن Docker يعمل وهاتفك متصل بالإنترنت لتكون التجربة "مبهرة" ومؤتمتة بالكامل.
+> [!TIP]  
+> **Demo tip:** Ensure Docker running & phone online for live QR scan demo.  
+> **العربية:** في يوم المناقشة، تأكد من أن Docker يعمل وهاتفك متصل لتجربة مبهرة.
+
+> [!NOTE]  
+> Stop: `docker compose down`. Volumes persist postgres data.
