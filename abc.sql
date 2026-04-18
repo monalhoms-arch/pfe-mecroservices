@@ -5,6 +5,16 @@
 CREATE DATABASE IF NOT EXISTS abc CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE abc;
 
+-- ── جدول الحسابات الخاص بخدمة الواتساب (Security & Notifications) ──
+CREATE TABLE IF NOT EXISTS accounts (
+    id                   INT AUTO_INCREMENT PRIMARY KEY,
+    phone_number         VARCHAR(20)  NOT NULL UNIQUE,
+    account_type         VARCHAR(50)  NOT NULL, -- 'customer', 'provider', 'admin'
+    is_business_whatsapp BOOLEAN      DEFAULT FALSE,
+    name                 VARCHAR(100),
+    INDEX (phone_number)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- ── جدول مزودي الخدمة ──
 CREATE TABLE IF NOT EXISTS provider (
     id        INT AUTO_INCREMENT PRIMARY KEY,
