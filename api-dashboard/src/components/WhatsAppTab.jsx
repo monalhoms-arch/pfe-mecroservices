@@ -8,8 +8,12 @@ export default function WhatsAppTab() {
   const showToast = useContext(ToastContext)
 
   // Global Config
-  const [apiKey, setApiKey] = useState(DEFAULT_KEY)
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('khidmati_api_key') || DEFAULT_KEY)
   const [serverOnline, setServerOnline] = useState(null)
+
+  useEffect(() => {
+    localStorage.setItem('khidmati_api_key', apiKey)
+  }, [apiKey])
 
   // Form States
   const [phone, setPhone] = useState('')

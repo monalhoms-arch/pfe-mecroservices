@@ -11,6 +11,7 @@ export default function PdfTab() {
   const [form, setForm] = useState({
     invoice_title: 'INVOICE',
     customer_name: '',
+    customer_phone: '', // رقم الهاتف الجديد
     customer_details: '',
     provider_name: '',
     provider_details: '',
@@ -18,9 +19,38 @@ export default function PdfTab() {
     notes: '',
   })
   const [items, setItems]     = useState([emptyItem()])
+  const [autoSend, setAutoSend] = useState(false) // خيار الإرسال التلقائي
   const [loading, setLoading] = useState(false)
   const [response, setResponse] = useState(null)
   const [serverOnline, setServerOnline] = useState(null)
+
+  const sendToWhatsApp = async (phone, url, invoiceId) => {
+    const key = localStorage.getItem('khidmati_api_key')
+    if (!key) {
+      showToast('يرجى إدخال مفتاح الـ API في قسم الواتساب أولاً', 'error')
+      return
+    }
+
+    try {
+      const msg = `مرحباً ${form.customer_name}، إليك فاتورتك رقم #${invoiceId} من ${form.provider_name}.\nيمكنك تحميلها من الرابط التالي:\n${url}`
+      const res = await fetch('http://localhost:8000/api/v1/notifications/direct', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-API-KEY': key
+        },
+        body: JSON.stringify({
+          phone_number: phone,
+          message: msg,
+          is_business: false
+        })
+      })
+      if (res.ok) showToast('تم إرسال الفاتورة عبر واتساب بنجاح ✅', 'success')
+      else showToast('فشل إرسال الفاتورة عبر واتساب، تأكد من إعدادات الخدمة', 'error')
+    } catch {
+      showToast('لا يمكن الاتصال بخدمة الواتساب لإرسال الفاتورة', 'error')
+    }
+  }
 
   const checkServer = async () => {
     setServerOnline('checking')
@@ -72,8 +102,17 @@ export default function PdfTab() {
       })
       const data = await res.json()
       setResponse(data)
-      if (data.status === 'success') showToast(`✅ تم إنشاء الفاتورة ${data.invoice_id}`, 'success')
-      else showToast('حدث خطأ أثناء الإنشاء', 'error')
+      if (data.status === 'success') {
+        showToast(`✅ تم إنشاء الفاتورة ${data.invoice_id}`, 'success')
+        
+        // إرسال تلقائي إذا كان مفعل
+        if (autoSend && form.customer_phone) {
+          const downloadUrl = data.download_url
+          sendToWhatsApp(form.customer_phone, downloadUrl, data.invoice_id)
+        }
+      } else {
+        showToast('حدث خطأ أثناء الإنشاء', 'error')
+      }
     } catch {
       showToast('تأكد من تشغيل سيرفر PDF على المنفذ 8002', 'error')
     } finally {
@@ -175,10 +214,15 @@ export default function PdfTab() {
                 onChange={e => setField('customer_name', e.target.value)} placeholder="محمد أمين" />
             </div>
             <div className="form-group">
+              <label className="input-label">📱 رقم هاتف الزبون (للإرسال)</label>
+              <input className="input-field" value={form.customer_phone}
+                onChange={e => setField('customer_phone', e.target.value)} placeholder="2137XXXXXXXX" />
+            </div>
+            <div className="form-group">
               <label className="input-label">تفاصيل الزبون</label>
               <textarea className="input-field" value={form.customer_details}
                 onChange={e => setField('customer_details', e.target.value)}
-                placeholder="العنوان، الهاتف..." rows={2} />
+                placeholder="العنوان، رقم آخر..." rows={2} />
             </div>
           </div>
           <div>
@@ -277,6 +321,19 @@ export default function PdfTab() {
           <span className="endpoint-method method-post">POST</span>
           {BASE}/api/v1/generate-pdf
         </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '15px 0' }}>
+          <input 
+            type="checkbox" 
+            checked={autoSend} 
+            onChange={e => setAutoSend(e.target.checked)}
+            id="autoSendCheck"
+            style={{ width: 18, height: 18, cursor: 'pointer' }}
+          />
+          <label htmlFor="autoSendCheck" style={{ fontSize: 13, cursor: 'pointer', fontWeight: 600 }}>
+            🚀 إرسال الفاتورة آلياً للزبون عبر واتساب فور صدورها
+          </label>
+        </div>
+
         <button className="btn btn-pdf" onClick={generatePdf} disabled={loading}>
           {loading ? <><span className="spinner" /> جاري التوليد...</> : '📄 توليد فاتورة PDF'}
         </button>
@@ -284,16 +341,28 @@ export default function PdfTab() {
         {response && (
           <div style={{ marginTop: 16 }}>
             <div className="response-block">{JSON.stringify(response, null, 2)}</div>
-            {getDownloadUrl() && (
-              <button
-                type="button"
-                onClick={downloadPdf}
-                className="btn btn-pdf btn-sm"
-                style={{ marginTop: 12, display: 'inline-flex' }}
-              >
-                ⬇️ تحميل الفاتورة ({response.invoice_id})
-              </button>
-            )}
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              {getDownloadUrl() && (
+                <button
+                  type="button"
+                  onClick={downloadPdf}
+                  className="btn btn-pdf btn-sm"
+                  style={{ marginTop: 12, display: 'inline-flex' }}
+                >
+                  ⬇️ تحميل الفاتورة ({response.invoice_id})
+                </button>
+              )}
+              {getDownloadUrl() && form.customer_phone && (
+                <button
+                  type="button"
+                  onClick={() => sendToWhatsApp(form.customer_phone, getDownloadUrl(), response.invoice_id)}
+                  className="btn btn-whatsapp btn-sm"
+                  style={{ marginTop: 12, display: 'inline-flex' }}
+                >
+                  💬 إرسال عبر واتساب
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
