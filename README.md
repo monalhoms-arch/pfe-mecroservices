@@ -1,6 +1,6 @@
 # 🛠️ Khidmati Microservices Platform (منصة خدمتي)
 
-Welcome to the **Khidmati** ecosystem. This project is a professional-grade, decoupled microservices architecture designed for a SaaS labor rental management system. It merges a premium React-based dashboard with multiple Python FastAPI services, all powered by a shared MySQL database.
+Welcome to the **Khidmati** ecosystem. This project is a professional-grade, decoupled microservices architecture designed for a SaaS labor rental management system. It merges a premium React-based dashboard with multiple Python FastAPI services, all powered by a high-performance **PostgreSQL** database.
 
 ---
 
@@ -12,7 +12,7 @@ The system is built on a "Service-Oriented" philosophy, where each core function
 2.  **[WhatsApp Service](./whatsapp)** (Port 8000): The central hub for communication. It handles:
     *   **Marketplace logic**: Dynamic worker directory & appointment booking.
     *   **Security**: OTP verification via Evolution API.
-    *   **Notifications**: Automated reminders stored in MySQL.
+    *   **Notifications**: Automated reminders stored in PostgreSQL.
 3.  **[PDF Invoice Service](./pdf)** (Port 8002): An automated engine that generates professional PDF documents and **logs financial transactions** directly into the shared database.
 4.  **[GPS & Maps Service](./gps)** (Port 8001): A utility for generating map links and tracking mobile coordinates.
 
@@ -20,23 +20,26 @@ The system is built on a "Service-Oriented" philosophy, where each core function
 
 ## 🗄️ Database Integration
 
-Unlike basic prototypes, Khidmati uses a real-time **MySQL** persistence layer:
-- **`abc.sql`**: Contains the full schema for `provider`, `appointments`, and `invoices`.
-- **Shared Data**: Microservices 8000 and 8002 synchronize data through this database to ensure consistency across the platform.
+Khidmati uses a robust **PostgreSQL** persistence layer for real-time data handling:
+- **Automatic Migration**: Microservices are configured to automatically create the necessary schema on startup.
+- **Shared Data**: Microservices 8000 and 8002 synchronize data through a shared PostgreSQL instance to ensure consistency across the platform.
+- **Environment Driven**: All database credentials are managed via secure `.env` files.
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-*   **MySQL Server**: (e.g., XAMPP or Laragon) with a database named `abc`.
+*   **PostgreSQL 15+**: Ensure you have a running instance and a database named `whatsapp_data`.
 *   **Python 3.10+** & **Node.js**.
-*   **Redis**: (Optional, for advanced OTP rate limiting).
+*   **Redis**: Used for high-performance OTP management and rate limiting.
 
 ### Installation & Setup
 
-#### 1. Database Setup
-Import the [abc.sql](./abc.sql) file into your MySQL server to populate the providers and structure.
+#### 1. Configuration
+Copy the `.env.example` files to `.env` in each service directory and update your credentials:
+- `whatsapp/.env`
+- `pdf/.env`
 
 #### 2. Backend Services
 Run each service in a separate terminal:
