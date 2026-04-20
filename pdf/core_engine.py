@@ -13,7 +13,7 @@ class KhidmatiPDF(FPDF):
         
         # Logo placeholder text (since we don't have a logo file yet)
         self.set_text_color(255, 255, 255)
-        self.set_font("Amiri", "B", 24)
+        self.set_font("Amiri", "", 24)
         
         # Reshape Arabic for Header
         title = get_display(reshape("منصة خدمتي - فاتورة إلكترونية"))
@@ -39,7 +39,6 @@ def generate_premium_pdf(data, invoice_id, font_path, output_dir):
     # Load Font
     if os.path.exists(font_path):
         pdf.add_font("Amiri", "", font_path, uni=True)
-        pdf.add_font("Amiri", "B", font_path, uni=True) # Using same for bold for now
         f = "Amiri"
     else:
         f = "Helvetica"
@@ -49,7 +48,7 @@ def generate_premium_pdf(data, invoice_id, font_path, output_dir):
     
     # Metadata Section
     pdf.set_xy(10, 50)
-    pdf.set_font(f, "B", 14)
+    pdf.set_font(f, "", 16)
     pdf.cell(100, 10, f"Invoice: #{invoice_id}")
     pdf.set_font(f, "", 12)
     pdf.cell(90, 10, f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M')}", align="R", ln=True)
@@ -77,7 +76,7 @@ def generate_premium_pdf(data, invoice_id, font_path, output_dir):
     # Table Header
     pdf.set_fill_color(37, 211, 102)
     pdf.set_text_color(255, 255, 255)
-    pdf.set_font(f, "B", 12)
+    pdf.set_font(f, "", 13)
     pdf.cell(100, 10, fix_arabic("الوصف"), fill=True, border=1, align="R")
     pdf.cell(30, 10, fix_arabic("الكمية"), fill=True, border=1, align="C")
     pdf.cell(30, 10, fix_arabic("السعر"), fill=True, border=1, align="C")
@@ -96,7 +95,7 @@ def generate_premium_pdf(data, invoice_id, font_path, output_dir):
         pdf.cell(30, 10, f"{total:,.0f}", border=1, align="C", ln=True)
 
     # Total Row
-    pdf.set_font(f, "B", 13)
+    pdf.set_font(f, "", 14)
     pdf.set_fill_color(240, 240, 240)
     pdf.cell(160, 12, fix_arabic("الإجمالي النهائي"), border=1, align="R", fill=True)
     pdf.cell(30, 12, f"{grand_total:,.0f} {data.currency}", border=1, align="C", fill=True, ln=True)
