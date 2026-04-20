@@ -29,11 +29,17 @@ export default function AutomationTab() {
       const res = await fetch(`${BASE_URL}/instances`, {
         headers: { 'X-API-KEY': API_KEY }
       })
-      const data = await res.json()
-      // Evolution API returns an array or an object depending on version
-      setInstances(Array.isArray(data) ? data : (data.instances || []))
+      if (res.ok) {
+        const data = await res.json()
+        setInstances(Array.isArray(data) ? data : (data.instances || []))
+      } else {
+        const errData = await res.json().catch(() => ({}))
+        showToast(`خطأ جلب النسخ: ${errData.detail || 'Evolution API غير متصل'}`, 'error')
+        setInstances([])
+      }
     } catch (err) {
-      showToast('خطأ في جلب بيانات النسخ', 'error')
+      showToast('خطأ من سيرفر WhatsApp الأساسي', 'error')
+      setInstances([])
     } finally {
       setLoading(false)
     }
@@ -53,7 +59,12 @@ export default function AutomationTab() {
         setShowCreateModal(false)
         fetchInstances()
       } else {
-        showToast('❌ فشل إنشاء النسخة', 'error')
+        const errData = await res.json().catch(() => ({}))
+        let msg = errData.detail || 'الرجاء التأكد من تشغيل حاوية Evolution API'
+        if (msg.includes('ConnectionError') || msg.includes('Failed to establish a new connection')) {
+            msg = 'السيرفر لا يستجيب، هل قمت بتشغيل docker compose؟'
+        }
+        showToast(`❌ فشل: ${msg}`, 'error')
       }
     } catch (err) {
       showToast('خطأ في الاتصال بالسيرفر', 'error')
