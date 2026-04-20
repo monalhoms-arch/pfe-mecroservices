@@ -23,7 +23,7 @@ export default function App() {
       
       const res = await axios.get(`${API_BASE}/appointments`, { params })
       setData(res.data)
-      if (res.data.length === 0) setError('لا توجد مهام حالياً')
+      if (res.data.length === 0) setError('لا توجد طلبات خدمات حالياً')
     } catch (err) {
       setError('حدث خطأ في جلب البيانات. تأكد من تشغيل السيرفر.')
     } finally {
@@ -49,7 +49,7 @@ export default function App() {
         >
           منصة خدمتي
         </motion.h1>
-        <p style={{ color: 'var(--text-muted)' }}>بوابة المهام والمهمات البسيطة</p>
+        <p style={{ color: 'var(--text-muted)' }}>بوابة طلبات الخدمات الموحدة</p>
       </header>
 
       <div className="portal-selector">
@@ -72,7 +72,7 @@ export default function App() {
       <main className="glass-card">
         <div className="input-group">
           <label>
-            {portal === 'customer' ? 'أدخل اسمك بالكامل للبحث عن مهماتك' : 'أدخل رقم التعريف الخاص بك (ID)'}
+            {portal === 'customer' ? 'أدخل اسمك بالكامل للبحث عن خدماتك المطلوبة' : 'أدخل رقم التعريف الخاص بك (ID)'}
           </label>
           <div style={{ position: 'relative' }}>
             <input 
@@ -131,7 +131,7 @@ export default function App() {
                       </button>
                     )}
                     <button className="premium-btn" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', background: '#2196f3' }} onClick={() => updateStatus(item.id, 'completed')}>
-                      إرشاد المهمة كمكتملة
+                      إكمال طلب الخدمة
                     </button>
                   </div>
                 )}
