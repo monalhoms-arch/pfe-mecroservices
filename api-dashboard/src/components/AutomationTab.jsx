@@ -3,45 +3,141 @@ import { ToastContext } from '../App'
 
 export default function AutomationTab() {
   const showToast = useContext(ToastContext)
-  const [status, setStatus] = useState({ state: 'checking', details: {} })
-  const [phone, setPhone] = useState('')
-  const [message, setMessage] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [instances, setInstances] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState(false)
+  const [showModal, setShowModal] = useState(false)
+  const [qrCode, setQrCode] = useState(null)
+  const [newInstanceName, setNewInstanceName] = useState('')
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  
+  // Test Message State
+  const [testPhone, setTestPhone] = useState('')
+  const [testMessage, setTestMessage] = useState('')
+  const [testInstance, setTestInstance] = useState('')
 
   const API_KEY = 'my_super_secret_key_123'
   const BASE_URL = 'http://127.0.0.1:8000/api/v1/automation'
 
-  useEffect(() => { checkStatus() }, [])
+  useEffect(() => {
+    fetchInstances()
+  }, [])
 
-  const checkStatus = async () => {
+  const fetchInstances = async () => {
+    setLoading(true)
     try {
-      const res = await fetch(`${BASE_URL}/status`, {
+      const res = await fetch(`${BASE_URL}/instances`, {
         headers: { 'X-API-KEY': API_KEY }
       })
       const data = await res.json()
-      setStatus({ state: data.status, details: data.details || {}, error: data.error })
+      // Evolution API returns an array or an object depending on version
+      setInstances(Array.isArray(data) ? data : (data.instances || []))
     } catch (err) {
-      setStatus({ state: 'offline', error: 'فشل الوصول للسيرفر' })
+      showToast('خطأ في جلب بيانات النسخ', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCreateInstance = async () => {
+    if (!newInstanceName) return showToast('يرجى إدخال اسم النسخة', 'error')
+    setActionLoading(true)
+    try {
+      const res = await fetch(`${BASE_URL}/instances?name=${newInstanceName}`, {
+        method: 'POST',
+        headers: { 'X-API-KEY': API_KEY }
+      })
+      if (res.ok) {
+        showToast('✅ تم إنشاء النسخة بنجاح')
+        setNewInstanceName('')
+        setShowCreateModal(false)
+        fetchInstances()
+      } else {
+        showToast('❌ فشل إنشاء النسخة', 'error')
+      }
+    } catch (err) {
+      showToast('خطأ في الاتصال بالسيرفر', 'error')
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleConnect = async (id) => {
+    setActionLoading(true)
+    try {
+      const res = await fetch(`${BASE_URL}/instances/${id}/connect`, {
+        headers: { 'X-API-KEY': API_KEY }
+      })
+      const data = await res.json()
+      if (data.code || data.base64) {
+        setQrCode(data.base64 || data.code)
+        setShowModal(true)
+      } else {
+        showToast('⚠️ النسخة متصلة بالفعل أو السيرفر غير مستجيب', 'warning')
+      }
+    } catch (err) {
+      showToast('خطأ في طلب رمز QR', 'error')
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleLogout = async (id) => {
+    if (!window.confirm('هل أنت متأكد من قطع الاتصال؟')) return
+    setActionLoading(true)
+    try {
+      const res = await fetch(`${BASE_URL}/instances/${id}/logout`, {
+        method: 'POST',
+        headers: { 'X-API-KEY': API_KEY }
+      })
+      if (res.ok) {
+        showToast('تم قطع الاتصال بنجاح')
+        fetchInstances()
+      }
+    } catch (err) {
+      showToast('خطأ في قطع الاتصال', 'error')
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleDelete = async (id) => {
+    if (!window.confirm(`⚠️ سيتم حذف النسخة "${id}" نهائياً. هل أنت متأكد؟`)) return
+    setActionLoading(true)
+    try {
+      const res = await fetch(`${BASE_URL}/instances/${id}`, {
+        method: 'DELETE',
+        headers: { 'X-API-KEY': API_KEY }
+      })
+      if (res.ok) {
+        showToast('🗑️ تم حذف النسخة بنجاح')
+        fetchInstances()
+      }
+    } catch (err) {
+      showToast('خطأ في الحذف', 'error')
+    } finally {
+      setActionLoading(false)
     }
   }
 
   const handleTestSend = async () => {
-    if (!phone || !message) return showToast('أدخل الهاتف والرسالة للاختبار', 'error')
-    setLoading(true)
+    if (!testPhone || !testMessage) return showToast('أدخل الهاتف والرسالة للاختبار', 'error')
+    setActionLoading(true)
     try {
-      const res = await fetch(`${BASE_URL}/test-message?phone=${phone}&message=${encodeURIComponent(message)}`, {
+      const url = `${BASE_URL}/test-message?phone=${testPhone}&message=${encodeURIComponent(testMessage)}${testInstance ? `&instance_id=${testInstance}` : ''}`
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 'X-API-KEY': API_KEY }
       })
       if (res.ok) {
         showToast('✅ تم إرسال رسالة الاختبار بنجاح')
       } else {
-        showToast('❌ فشل الإرسال الآلي. تأكد من ربط الهاتف', 'error')
+        showToast('❌ فشل الإرسال من هذه النسخة', 'error')
       }
     } catch (err) {
-      showToast('خطأ في الاتصال بالسيرفر', 'error')
+      showToast('خطأ في الإرسال', 'error')
     } finally {
-      setLoading(false)
+      setActionLoading(false)
     }
   }
 
@@ -49,69 +145,160 @@ export default function AutomationTab() {
     <div className="automation-container fade-in-up">
       <header className="page-header">
         <div className="page-header-top">
-          <div className="page-icon" style={{ background: '#FFD700' }}>⚡</div>
+          <div className="page-icon" style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)' }}>⚡</div>
           <div>
-            <h1>مركز الأتمتة والتحكم</h1>
-            <p>مراقبة حالة الارتباط مع Evolution API وإدارة الإرسال الآلي</p>
+            <h1>مركز الأتمتة المتقدم</h1>
+            <p>إدارة النسخ المتعددة لـ Evolution API والتحكم في حالات الاتصال</p>
           </div>
+        </div>
+        <div className="header-actions">
+           <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
+             <span>+ إنشاء نسخة جديدة</span>
+           </button>
+           <button className="btn btn-ghost" onClick={fetchInstances} disabled={loading}>
+             {loading ? 'جاري التحديث...' : 'تحديث الكل 🔄'}
+           </button>
         </div>
       </header>
 
-      <div className="two-col">
-        {/* Status Monitoring */}
-        <div className="glass-card section-card">
-          <div className="section-card-header">
-            <span className="section-title">📡 حالة الاتصال الحالية</span>
-            <button className="btn btn-ghost btn-sm" onClick={checkStatus}>تحديث 🔄</button>
-          </div>
+      <div className="main-content">
+        {/* Instance List Section */}
+        <section className="instance-section">
+          <h2 className="section-title">📡 النسخ المسجلة ({instances.length})</h2>
           
-          <div className="status-display" style={{ marginTop: '20px' }}>
-            <div className={`status-indicator ${status.state}`} style={{ fontSize: '18px', padding: '15px' }}>
-              <div className="status-dot" style={{ width: '12px', height: '12px' }} />
-              <span>{status.state === 'online' ? 'متصل (Online)' : 'غير متصل (Offline)'}</span>
-            </div>
-            
-            {status.state === 'online' ? (
-              <div className="status-details" style={{ marginTop: '20px' }}>
-                <p><strong>Instance:</strong> {status.details.instanceName || 'main_instance'}</p>
-                <p><strong>Owner:</strong> {status.details.ownerJid || 'Connected'}</p>
-                <p style={{ color: 'var(--accent-whatsapp)', fontSize: '12px', marginTop: '10px' }}>✅ السيرفر جاهز لاستقبال وتنفيذ مهام الأتمتة الخلفية.</p>
-              </div>
-            ) : (
-              <div className="status-details" style={{ marginTop: '20px', color: '#ff6b6b' }}>
-                <p><strong>الخطأ:</strong> {status.error || 'سيرفر Evolution API غير مستجيب'}</p>
-                <p style={{ fontSize: '12px', marginTop: '10px' }}>⚠️ يرجى التأكد من تشغيل حاويات Docker ورابط هاتفك عبر QR Code.</p>
-              </div>
-            )}
-          </div>
-        </div>
+          {loading && !instances.length ? (
+            <div className="loading-state">جاري تحميل النسخ...</div>
+          ) : (
+            <div className="instance-grid">
+              {instances.map((inst) => (
+                <div key={inst.instanceId || inst.name} className={`instance-card glass-card ${inst.status === 'open' || inst.connectionStatus === 'open' ? 'connected' : 'disconnected'}`}>
+                  <div className="card-badge">
+                    {inst.status === 'open' || inst.connectionStatus === 'open' ? 'توصيل نشط' : 'غير متصل'}
+                  </div>
+                  <div className="card-header">
+                    <h3>{inst.instanceName || inst.name}</h3>
+                    <code className="id-sub">{inst.instanceId || inst.id}</code>
+                  </div>
+                  
+                  <div className="card-body">
+                     <div className="info-row">
+                        <span>الحالة:</span>
+                        <span className="val">{inst.connectionStatus || inst.status || 'unknown'}</span>
+                     </div>
+                     {inst.ownerJid && (
+                       <div className="info-row">
+                          <span>الرقم المرتبط:</span>
+                          <span className="val">{inst.ownerJid.split('@')[0]}</span>
+                       </div>
+                     )}
+                  </div>
 
-        {/* Manual Test Dispatch */}
-        <div className="glass-card section-card">
-          <div className="section-card-header">
-            <span className="section-title">🚀 اختبار الإرسال الآلي</span>
-          </div>
-          <div style={{ marginTop: '20px' }}>
-            <div className="form-group">
-                <label className="input-label">رقم الهاتف (للاختبار)</label>
-                <input className="input-field" placeholder="213XXXXXXXXX" value={phone} onChange={e => setPhone(e.target.value)} />
+                  <div className="card-actions">
+                    {inst.status !== 'open' && inst.connectionStatus !== 'open' ? (
+                      <button className="btn-sm btn-whatsapp" onClick={() => handleConnect(inst.instanceName || inst.name)}>ربط QR</button>
+                    ) : (
+                      <button className="btn-sm btn-ghost" onClick={() => handleLogout(inst.instanceName || inst.name)}>قطع الاتصال</button>
+                    )}
+                    <button className="btn-sm btn-test" onClick={() => {
+                        setTestInstance(inst.instanceName || inst.name)
+                        document.querySelector('.test-section').scrollIntoView({ behavior: 'smooth' })
+                    }}>اختبار إرسال</button>
+                    <button className="btn-sm btn-danger-icon" title="حذف" onClick={() => handleDelete(inst.instanceName || inst.name)}>🗑️</button>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="form-group">
-                <label className="input-label">نص الرسالة</label>
-                <textarea className="input-field" rows={3} placeholder="اكتب رسالة تجريبية..." value={message} onChange={e => setMessage(e.target.value)} />
-            </div>
-            <button className="btn btn-whatsapp" onClick={handleTestSend} disabled={loading} style={{ width: '100%', marginTop: '10px' }}>
-              {loading ? 'جاري الإرسال...' : 'إرسال اختبار فوري'}
-            </button>
-          </div>
-        </div>
+          )}
+        </section>
+
+        {/* Test Section */}
+        <section className="test-section glass-card section-card" style={{ marginTop: '30px' }}>
+             <h2 className="section-title">🚀 اختبار الإرسال الآلي</h2>
+             <div className="test-flex">
+                <div className="form-group">
+                   <label>النسخة المستخدمة</label>
+                   <select className="input-field" value={testInstance} onChange={e => setTestInstance(e.target.value)}>
+                      <option value="">-- النسخة الافتراضية --</option>
+                      {instances.map(i => (
+                        <option key={i.id} value={i.instanceName || i.name}>{i.instanceName || i.name}</option>
+                      ))}
+                   </select>
+                </div>
+                <div className="form-group">
+                   <label>رقم الهاتف</label>
+                   <input className="input-field" placeholder="213XXXXXXXXX" value={testPhone} onChange={e => setTestPhone(e.target.value)} />
+                </div>
+             </div>
+             <div className="form-group">
+                <label>نص الرسالة</label>
+                <textarea className="input-field" rows={2} value={testMessage} onChange={e => setTestMessage(e.target.value)} />
+             </div>
+             <button className="btn btn-whatsapp" onClick={handleTestSend} disabled={actionLoading} style={{ width: '100%' }}>
+                {actionLoading ? 'جاري الإرسال...' : 'إرسال اختبار فوري'}
+             </button>
+        </section>
       </div>
 
+      {/* QR Modal */}
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+           <div className="modal-content glass-card" onClick={e => e.stopPropagation()}>
+              <h2>اربط هاتفك بالواتساب</h2>
+              <p>قم بمسح الكود التالي باستخدام واتساب ويب من هاتفك</p>
+              <div className="qr-container">
+                 {qrCode?.startsWith('data:image') ? (
+                   <img src={qrCode} alt="QR Code" />
+                 ) : (
+                   <div className="qr-fallback">{qrCode}</div>
+                 )}
+              </div>
+              <button className="btn btn-primary" onClick={() => setShowModal(false)}>أغلـق</button>
+           </div>
+        </div>
+      )}
+
+      {/* Create Instance Modal */}
+      {showCreateModal && (
+        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+           <div className="modal-content glass-card" onClick={e => e.stopPropagation()}>
+              <h2>إنشاء نسخة جديدة</h2>
+              <div className="form-group" style={{ margin: '20px 0' }}>
+                 <label>اسم النسخة (Instance Name)</label>
+                 <input className="input-field" placeholder="مثلاً: factory_dispatch" value={newInstanceName} onChange={e => setNewInstanceName(e.target.value)} />
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button className="btn btn-primary" onClick={handleCreateInstance} disabled={actionLoading}>
+                   {actionLoading ? 'جاري الإنشاء...' : 'تأكيد الإنشاء'}
+                </button>
+                <button className="btn btn-ghost" onClick={() => setShowCreateModal(false)}>إلغاء</button>
+              </div>
+           </div>
+        </div>
+      )}
+
       <style>{`
-        .status-display { display: flex; flex-direction: column; }
-        .status-indicator.online { background: rgba(37, 211, 102, 0.1); color: var(--accent-whatsapp); border: 1px solid rgba(37, 211, 102, 0.2); border-radius: 12px; }
-        .status-indicator.offline { background: rgba(255, 107, 107, 0.1); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.2); border-radius: 12px; }
-        .status-details p { margin: 5px 0; font-size: 14px; }
+        .instance-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 15px; }
+        .instance-card { position: relative; padding: 20px; border-left: 4px solid #ccc; transition: all 0.3s; }
+        .instance-card.connected { border-left-color: #25d366; }
+        .instance-card.disconnected { border-left-color: #ff6b6b; opacity: 0.8; }
+        .card-badge { position: absolute; top: 10px; left: 10px; font-size: 10px; background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 20px; }
+        .card-header h3 { margin: 10px 0 0 0; font-size: 18px; color: var(--text-main); }
+        .id-sub { font-size: 11px; color: var(--text-dim); }
+        .info-row { display: flex; justify-content: space-between; font-size: 13px; margin: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; }
+        .val { color: var(--accent-whatsapp); font-weight: 500; }
+        .card-actions { display: flex; gap: 8px; margin-top: 20px; }
+        .btn-test { background: rgba(255,215,0,0.1); color: #ffd700; border: 1px solid rgba(255,215,0,0.2); cursor: pointer; border-radius: 4px; padding: 4px 8px; }
+        .btn-danger-icon { background: none; border: none; cursor: pointer; font-size: 16px; opacity: 0.6; transition: 0.3s; }
+        .btn-danger-icon:hover { opacity: 1; transform: scale(1.1); }
+        
+        .test-flex { display: flex; gap: 20px; margin-bottom: 15px; }
+        .test-flex .form-group { flex: 1; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px); }
+        .modal-content { max-width: 450px; width: 90%; padding: 30px; text-align: center; border: 1px solid rgba(255,255,255,0.2); }
+        .qr-container { background: white; padding: 15px; border-radius: 12px; margin: 20px auto; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; }
+        .qr-container img { width: 100%; height: 100%; object-fit: contain; }
+        .qr-fallback { color: #333; word-break: break-all; font-family: monospace; font-size: 10px; }
       `}</style>
     </div>
   )
