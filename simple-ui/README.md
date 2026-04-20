@@ -1,16 +1,20 @@
-# React + Vite
+# 📱 Simple UI (Service Portals)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This directory contains the practical frontend testing portals for both Customers and Workers of the **"Khidmati"** platform. Instead of a traditional dashboard, this mini-app functions as a direct testing ground/interface for the underlying Python microservices bridging them to practical use cases.
 
-Currently, two official plugins are available:
+## 📌 Key Features
+- **Customer Booking Engine:** A direct interface hitting the `WhatsApp` API endpoints for booking providers and automatically managing localized WhatsApp routing.
+- **Worker Management Arsenal:** 
+  - Exposes a dedicated pane for workers to interact directly with the `PDF Service` to mint and issue standard invoices.
+  - Grants workers power to dispatch immediate direct WhatsApp notifications via the `Evolution API` backend network.
+- **GPS Localization Setup:** Bridges browser-geospatial nodes with the `GPS` microservice to construct and attach accurate coordinate links inside dispatch mechanisms.
+- **Sleek Aesthetics:** Built with the project's consistent Glassmorphism UI guidelines (RTL supported context).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 How to Run
+Powered by **Vite**. Runs on **Port 5174** (to avoid collision with the port 5173 used by `api-dashboard`).
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+> **Note:** These toolsets work perfectly dynamically, but rely directly on `localhost:8000`, `8001`, and `8002` being active concurrently.
