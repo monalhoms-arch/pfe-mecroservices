@@ -12,13 +12,14 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from fpdf import FPDF
 
-# Database Integration (MySQL for abc.sql)
+from config import settings
+
+# Database Integration (PostgreSQL)
 from sqlalchemy import create_engine, Column, Integer, String, DECIMAL, TIMESTAMP, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "mysql+pymysql://root@127.0.0.1:3306/abc"
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -34,7 +35,15 @@ class InvoiceDB(Base):
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="PDF Generation Service", description="A standalone service for generating generic PDF invoices.")
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+app = FastAPI(title=settings.APP_TITLE, description="A standalone service for generating generic PDF invoices.")
 
 app.add_middleware(
     CORSMiddleware,
@@ -128,9 +137,10 @@ def generate_pdf(data: InvoiceRequest, invoice_id: str):
     pdf.output(file_path)
     return file_path, grand_total
 
+from fastapi import FastAPI, HTTPException, Request, Depends
+
 @app.post("/api/v1/generate-pdf")
-async def create_pdf_invoice(request: Request, payload: InvoiceRequest):
-    db = SessionLocal()
+async def create_pdf_invoice(request: Request, payload: InvoiceRequest, db=Depends(get_db)):
     try:
         invoice_id = str(uuid.uuid4())[:8].upper()
         file_path, total_price = generate_pdf(payload, invoice_id)
@@ -155,8 +165,6 @@ async def create_pdf_invoice(request: Request, payload: InvoiceRequest):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
 
 @app.get("/api/v1/files/{invoice_id}", name="download_invoice")
 async def download_invoice(invoice_id: str):
@@ -166,4 +174,4 @@ async def download_invoice(invoice_id: str):
     return FileResponse(file_path, media_type="application/pdf")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8002)
+    uvicorn.run(app, host=settings.HOST, port=settings.PORT)

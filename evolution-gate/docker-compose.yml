@@ -1,31 +1,43 @@
-version: '3.8'
+version: "3.8"
 
 services:
   evolution_api:
-    image: atendai/evolution-api:latest
+    # تم التغيير للنسخة الرسمية المستقرة
+    image: evoapicloud/evolution-api:latest
     container_name: evolution_api
     restart: always
-    ports:
-      - "8080:8080"
+    # في Docker Compose نستخدم اسم الخدمة (postgres) بدلاً من 127.0.0.1
     environment:
       - SERVER_URL=http://localhost:8080
-      - DOCKER_RESTART_POLICY=always
       - AUTHENTICATION_TYPE=apikey
       - AUTHENTICATION_API_KEY=my_evolution_token_123
+      
+      # إعدادات قاعدة البيانات (الربط عبر الشبكة الداخلية)
       - DATABASE_ENABLED=true
       - DATABASE_PROVIDER=postgresql
-      - DATABASE_CONNECTION_URI=postgresql://rev:rev_pass@postgres:5432/evolution?sslmode=disable
-      - DATABASE_CONNECTION_CLIENT_NAME=evolution_api
+      - DATABASE_CONNECTION_URI=postgresql://rev:rev_pass@evolution_postgres:5432/evolution?sslmode=disable
+      
+      # إعدادات Redis
       - REDIS_ENABLED=true
-      - REDIS_URI=redis://redis:6379
-      - REDIS_DB=0
+      - REDIS_URI=redis://evolution_redis:6379
+      
+      # إعدادات إضافية لضمان استقرار المتصفح داخل الحاوية
+      - DELAY_BEFORE_START=3000
+      - LOG_LEVEL=INFO
+
+    ports:
+      - "8080:8080"
+    
     depends_on:
-      - postgres
-      - redis
+      evolution_postgres:
+        condition: service_healthy
+      evolution_redis:
+        condition: service_healthy
+    
     networks:
       - evolution_net
 
-  postgres:
+  evolution_postgres:
     image: postgres:15
     container_name: evolution_postgres
     restart: always
@@ -37,13 +49,26 @@ services:
       - evolution_postgres_data:/var/lib/postgresql/data
     networks:
       - evolution_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rev -d evolution"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  redis:
-    image: redis:alpine
+  evolution_redis:
+    image: redis:7-alpine
     container_name: evolution_redis
     restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - evolution_redis_data:/data
     networks:
       - evolution_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   evolution_net:
@@ -51,3 +76,4 @@ networks:
 
 volumes:
   evolution_postgres_data:
+  evolution_redis_data:
