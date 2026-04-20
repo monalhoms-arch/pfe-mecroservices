@@ -4,7 +4,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 
-app = FastAPI(title="GPS Generation Service", description="A standalone service for location links and tools.")
+from config import settings
+from core_logic import calculate_distance, get_map_urls, format_coordinates
+
+app = FastAPI(
+    title=settings.APP_TITLE, 
+    description="النظام الأساسي لتحديد المواقع، حساب المسافات، وتوليد روابط الخرائط لمنصة خدمتي."
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -17,33 +23,41 @@ class Coordinates(BaseModel):
     latitude: float
     longitude: float
 
+class DistanceRequest(BaseModel):
+    origin: Coordinates
+    destination: Coordinates
+
 @app.get("/api/v1/maps-url")
-async def generate_maps_url(lat: float, lng: float, zoom: Optional[int] = 15):
+async def generate_maps_url(lat: float, lng: float, label: Optional[str] = "Location"):
     """
-    توليد روابط الخرائط لمنصات مختلفة بناءً على الإحداثيات
+    توليد روابط مخصصة لمختلف تطبيقات الخرائط
     """
     if not (-90 <= lat <= 90) or not (-180 <= lng <= 180):
         raise HTTPException(status_code=400, detail="إحداثيات غير صحيحة")
 
     return {
         "status": "success",
-        "coordinates": {"latitude": lat, "longitude": lng},
-        "urls": {
-            "google_maps": f"https://maps.google.com/?q={lat},{lng}&z={zoom}",
-            "apple_maps": f"https://maps.apple.com/?q={lat},{lng}&z={zoom}",
-            "open_street_map": f"https://www.openstreetmap.org/?mlat={lat}&mlon={lng}#map={zoom}/{lat}/{lng}"
-        }
+        "human_readable": format_coordinates(lat, lng),
+        "urls": get_map_urls(lat, lng, label)
     }
 
-@app.post("/api/v1/format-location")
-async def format_location(coords: Coordinates):
+@app.post("/api/v1/distance")
+async def get_distance(payload: DistanceRequest):
     """
-    تنسيق الإحداثيات للحصول على رابط جوجل ماب كاستجابة مباشرة
+    حساب المسافة الجوية بين نقطتين بالكيلومترات
     """
-    return {
-        "url": f"https://maps.google.com/?q={coords.latitude},{coords.longitude}"
-    }
+    try:
+        dist = calculate_distance(
+            payload.origin.latitude, payload.origin.longitude,
+            payload.destination.latitude, payload.destination.longitude
+        )
+        return {
+            "status": "success",
+            "distance_km": round(dist, 2),
+            "distance_m": round(dist * 1000, 0)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-    # تشغيل السيرفر على المنفذ 8001
-    uvicorn.run(app, host="127.0.0.1", port=8001)
+    uvicorn.run(app, host=settings.HOST, port=settings.PORT)
