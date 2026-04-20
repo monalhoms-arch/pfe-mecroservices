@@ -1,5 +1,10 @@
 # 🛠️ Khidmati Platform Version 1.0 (Gold Master)
 
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
+![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![PostgreSQL](https://img.shields.io/badge/postgresql-4169e1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
 Welcome to the **Khidmati Ecosystem**. This project represents a professional-level, decoupled Microservices architecture tailored for a SaaS Labor management platform. It combines high-end React frontends with powerful Python FastAPI backend utilities, unified by a persistent **PostgreSQL** data layer.
 
 ---
