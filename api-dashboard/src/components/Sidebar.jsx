@@ -27,6 +27,15 @@ const TABS = [
     activeClass: 'active-dashboard',
   },
   {
+    id: 'accounts',
+    icon: '👥',
+    title: 'Accounts',
+    sub: 'Verified Users',
+    port: 'Auth',
+    portClass: 'port-gps',
+    activeClass: 'active-gps',
+  },
+  {
     id: 'automation',
     icon: '⚡',
     title: 'Automation',

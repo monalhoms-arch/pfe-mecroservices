@@ -9,6 +9,7 @@ import GpsTab from './components/GpsTab'
 import MarketplaceTab from './components/MarketplaceTab'
 import WorkerManagement from './components/WorkerManagement'
 import AutomationTab from './components/AutomationTab'
+import AccountsTab from './components/AccountsTab'
 import Toast from './components/Toast'
 
 export const ToastContext = React.createContext(null)
@@ -30,6 +31,7 @@ function App() {
           <div className="tab-content fade-in-up" key={activeTab}>
             {activeTab === 'dashboard'   && <Dashboard />}
             {activeTab === 'marketplace' && <MarketplaceTab />}
+            {activeTab === 'accounts'    && <AccountsTab />}
             {activeTab === 'workers'     && <WorkerManagement />}
             {activeTab === 'automation'  && <AutomationTab />}
             {activeTab === 'whatsapp'    && <WhatsAppTab />}
