@@ -34,14 +34,15 @@ def fix_arabic(text):
 
 def generate_premium_pdf(data, invoice_id, font_path, output_dir):
     pdf = KhidmatiPDF()
-    pdf.add_page()
     
-    # Load Font
+    # Load Font before calling add_page (which triggers header)
     if os.path.exists(font_path):
         pdf.add_font("Amiri", "", font_path, uni=True)
         f = "Amiri"
     else:
         f = "Helvetica"
+        
+    pdf.add_page()
     
     pdf.set_font(f, size=12)
     pdf.set_text_color(0, 0, 0)
