@@ -1,78 +1,93 @@
-# 🛠️ Khidmati Microservices Platform (منصة خدمتي)
+# 🛠️ Khidmati Platform Version 1.0 (Gold Master)
 
-Welcome to the **Khidmati** ecosystem. This project is a professional-grade, decoupled microservices architecture designed for a SaaS labor rental management system. It merges a premium React-based dashboard with multiple Python FastAPI services, all powered by a high-performance **PostgreSQL** database.
-
----
-
-## 🏗️ Project Architecture
-
-The system is built on a "Service-Oriented" philosophy, where each core function resides in its own isolated environment:
-
-1.  **[API Dashboard (Frontend)](./api-dashboard)** (Port 5173): A high-end React/Vite interface using **Glassmorphism** aesthetics. It provides a unified view of the marketplace and admin control tools.
-2.  **[WhatsApp Service](./whatsapp)** (Port 8000): The central hub for communication. It handles:
-    *   **Marketplace logic**: Dynamic worker directory & appointment booking.
-    *   **Security**: OTP verification via Evolution API.
-    *   **Notifications**: Automated reminders stored in PostgreSQL.
-3.  **[PDF Invoice Service](./pdf)** (Port 8002): An automated engine that generates professional PDF documents and **logs financial transactions** directly into the shared database.
-4.  **[GPS & Maps Service](./gps)** (Port 8001): A utility for generating map links and tracking mobile coordinates.
+Welcome to the **Khidmati Ecosystem**. This project represents a professional-level, decoupled Microservices architecture tailored for a SaaS Labor management platform. It combines high-end React frontends with powerful Python FastAPI backend utilities, unified by a persistent **PostgreSQL** data layer.
 
 ---
 
-## 🗄️ Database Integration
+## 🏛️ System Architecture
 
-Khidmati uses a robust **PostgreSQL** persistence layer for real-time data handling:
-- **Automatic Migration**: Microservices are configured to automatically create the necessary schema on startup.
-- **Shared Data**: Microservices 8000 and 8002 synchronize data through a shared PostgreSQL instance to ensure consistency across the platform.
-- **Environment Driven**: All database credentials are managed via secure `.env` files.
+The heart of the project lives in its independent but interconnected services:
+
+### 1. 🟢 WhatsApp Core Service (Port `8000`)
+Located in `./whatsapp/`. This is the central hub connecting all nodes.
+- **Role**: Manages providers and handles all system notifications.
+- **Marketplace API**: Controls the `provider` and `appointments` tables.
+- **Messaging**: Connected to the Evolution API to send real-time alerts.
+- **Security**: Handles the OTP lifecycle for user logins.
+
+### 2. 📍 GPS Locomotion Service (Port `8001`)
+Located in `./gps/`.
+- **Role**: Geodesic calculator and mapping engine.
+- Calculates precise aerial distances between service points using `geopy`.
+- Generates universal provider mapping links (Google Maps, Waze, Apple, OSM).
+
+### 3. 📄 Premium PDF Engine (Port `8002`)
+Located in `./pdf/`.
+- **Role**: Financial and documentation hub (`invoices` table).
+- Automatically formats and generates premium invoices leveraging **RTL Arabic Reshaping**.
+- Injects dynamic QR codes for instant physical-to-digital invoice validation.
+
+---
+
+## 💻 Frontend Applications
+
+### 1. 🎛️ API Dashboard (Admin Space)
+Located in `./api-dashboard/` (Port `5173`).
+- A highly polished React interface allowing platform administrators to monitor real-time system health, view OTP statuses, observe backend data pulses, and manage worker queues.
+- Designed with premium **Glassmorphism** styling.
+
+### 2. 📱 Simple UI (End-User App)
+Located in `./simple-ui/` (Port usually `5174` or `5173` depending on spin-up).
+- **Customer Portal**: Direct marketplace booking interacting with the WhatsApp service for automated provider dispatch, natively supporting the GPS plugin for location sharing.
+- **Worker Portal**: The "Toolbelt" for providers. Allows field workers to instantly generate PDF invoices (via Port 8002) and send customized direct WhatsApp alerts (via Port 8000).
+
+---
+
+## 🗄️ Database
+All microservices connect to a single unified **PostgreSQL** database ensuring no data fragmentation.
+- The initialization file `database_init.sql` serves as the blueprint for the `accounts`, `provider`, `appointments`, and `invoices` architecture.
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-*   **PostgreSQL 15+**: Ensure you have a running instance and a database named `whatsapp_data`.
-*   **Python 3.10+** & **Node.js**.
-*   **Redis**: Used for high-performance OTP management and rate limiting.
+- Node.js (v18+)
+- Python (3.10+)
+- PostgreSQL Server Instance (Database: `whatsapp_data`)
+- Redis (For OTP caching)
 
-### Installation & Setup
-
-#### 1. Configuration
-Copy the `.env.example` files to `.env` in each service directory and update your credentials:
-- `whatsapp/.env`
-- `pdf/.env`
-
-#### 2. Backend Services
-Run each service in a separate terminal:
+### Running the Backends
+Open 3 separate terminal tabs and launch each independent service:
 ```bash
-# WhatsApp & Marketplace (Port 8000)
-cd whatsapp && pip install -r requirements.txt && python main.py
+# 1. WhatsApp Service
+cd whatsapp
+pip install -r requirements.txt
+python main.py
 
-# PDF Engine (Port 8002)
-cd pdf && pip install -r requirements.txt && python main.py
+# 2. GPS Service
+cd gps
+pip install -r requirements.txt
+python main.py
 
-# GPS Utility (Port 8001)
-cd gps && pip install -r requirements.txt && python main.py
+# 3. PDF Service
+cd pdf
+pip install -r requirements.txt
+python main.py
 ```
 
-#### 3. Frontend Dashboard
+### Running the Frontends
 ```bash
+# Admin Dashboard
 cd api-dashboard
+npm install
+npm run dev
+
+# Customer/Worker App
+cd simple-ui
 npm install
 npm run dev
 ```
 
 ---
-
-## 🎨 Key Features
-*   **🌟 Marketplace**: Real-time worker directory fetched from the DB.
-*   **📄 PDF Invoicing**: Automatic invoice generation with database archiving.
-*   **💬 Dual WhatsApp Redirection**: Simultaneous PDF receipt and provider notification.
-*   **📍 Location Tracking**: One-click geolocation sharing for field workers.
-*   **💎 Premium UI**: Matte/Glass finish with smooth RTL (Arabic) support.
-
----
-
-## 📄 Final Notes
-This project was developed as a "Gold Master" version for a graduation project (PFE 2026), showcasing the power of Microservices and modern Web technologies.
-
-Created with ❤️ for the Khidmati Platform.
+*Developed as a Gold Master version for a Graduation Project (PFE 2026).*
