@@ -19,6 +19,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/api/v1/health")
+async def health_check():
+    return {"status": "online", "service": "gps"}
+
 class Coordinates(BaseModel):
     latitude: float
     longitude: float

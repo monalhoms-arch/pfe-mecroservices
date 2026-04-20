@@ -30,6 +30,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/api/v1/health")
+async def health_check():
+    return {"status": "online", "service": "pdf"}
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 INVOICES_DIR = os.path.join(BASE_DIR, "invoices")
 FONTS_DIR = os.path.join(BASE_DIR, "fonts")
