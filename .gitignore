@@ -21,6 +21,7 @@ fonts/
 .idea/
 *.log
 *.sqlite3
+*_fallback.db
 
 # OS
 .DS_Store
