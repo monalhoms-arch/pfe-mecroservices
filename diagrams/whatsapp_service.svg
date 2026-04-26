@@ -1,0 +1,83 @@
+<svg width="800" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="waGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#25d366;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#075e54;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="dbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#336791;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#21445f;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+      <feOffset dx="2" dy="2" result="offsetblur" />
+      <feComponentTransfer><feFuncA type="linear" slope="0.3" /></feComponentTransfer>
+      <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="800" height="500" fill="#f4fdf8" rx="15" />
+  <text x="400" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#064e3b">WhatsApp Core Service - Detailed Architecture</text>
+
+  <!-- Service Box -->
+  <rect x="100" y="70" width="600" height="280" rx="15" fill="url(#waGrad)" filter="url(#shadow)" />
+  <text x="400" y="100" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="white">FastAPI WhatsApp Microservice (Port 8000)</text>
+
+  <!-- Routers Section -->
+  <rect x="120" y="120" width="260" height="210" rx="10" fill="#00000033" stroke="white" stroke-width="1" />
+  <text x="250" y="145" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#e2e8f0">Routers &amp; Endpoints</text>
+  
+  <rect x="135" y="160" width="230" height="30" rx="5" fill="white" fill-opacity="0.2" />
+  <text x="250" y="180" font-family="Courier New, monospace" font-size="12" text-anchor="middle" fill="white">/api/v1/otp (Security)</text>
+
+  <rect x="135" y="200" width="230" height="30" rx="5" fill="white" fill-opacity="0.2" />
+  <text x="250" y="220" font-family="Courier New, monospace" font-size="12" text-anchor="middle" fill="white">/api/v1/marketplace</text>
+
+  <rect x="135" y="240" width="230" height="30" rx="5" fill="white" fill-opacity="0.2" />
+  <text x="250" y="260" font-family="Courier New, monospace" font-size="12" text-anchor="middle" fill="white">/api/v1/notifications</text>
+
+  <rect x="135" y="280" width="230" height="30" rx="5" fill="white" fill-opacity="0.2" />
+  <text x="250" y="300" font-family="Courier New, monospace" font-size="12" text-anchor="middle" fill="white">/api/v1/automation &amp; accounts</text>
+
+  <!-- Core Modules Section -->
+  <rect x="420" y="120" width="260" height="210" rx="10" fill="#00000033" stroke="white" stroke-width="1" />
+  <text x="550" y="145" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#e2e8f0">Core Controllers</text>
+
+  <rect x="435" y="160" width="230" height="45" rx="5" fill="white" fill-opacity="0.1" stroke="white" stroke-dasharray="4" />
+  <text x="550" y="180" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="white">Evolution API Client</text>
+  <text x="550" y="195" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#d1fae5">(Message formatting &amp; dispatch)</text>
+
+  <rect x="435" y="215" width="230" height="45" rx="5" fill="white" fill-opacity="0.1" stroke="white" stroke-dasharray="4" />
+  <text x="550" y="235" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="white">Redis Cache Manager</text>
+  <text x="550" y="250" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#d1fae5">(TTL, Verification Codes)</text>
+
+  <rect x="435" y="270" width="230" height="45" rx="5" fill="white" fill-opacity="0.1" stroke="white" stroke-dasharray="4" />
+  <text x="550" y="290" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="white">SQLAlchemy ORM</text>
+  <text x="550" y="305" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#d1fae5">(Session Management)</text>
+
+
+  <!-- External Systems -->
+  <rect x="100" y="400" width="180" height="70" rx="10" fill="url(#dbGrad)" filter="url(#shadow)" />
+  <text x="190" y="425" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="white">PostgreSQL DB</text>
+  <text x="190" y="445" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#bae6fd">Tables: accounts, provider,</text>
+  <text x="190" y="458" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#bae6fd">appointments</text>
+
+  <rect x="310" y="400" width="180" height="70" rx="10" fill="#dc2626" filter="url(#shadow)" />
+  <text x="400" y="430" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="white">Redis Server</text>
+  <text x="400" y="450" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#fca5a5">Key-Value OTP Store</text>
+
+  <rect x="520" y="400" width="180" height="70" rx="10" fill="#047857" filter="url(#shadow)" />
+  <text x="610" y="430" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="white">Evolution API</text>
+  <text x="610" y="450" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#a7f3d0">External WhatsApp Gateway</text>
+
+  <!-- Connection Lines -->
+  <path d="M 190 350 L 190 390" stroke="#336791" stroke-width="3" fill="none" marker-end="url(#arrowBlue)" />
+  <path d="M 400 350 L 400 390" stroke="#dc2626" stroke-width="3" fill="none" marker-end="url(#arrowRed)" />
+  <path d="M 610 350 L 610 390" stroke="#047857" stroke-width="3" fill="none" marker-end="url(#arrowGreen)" />
+
+  <defs>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#336791" /></marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#dc2626" /></marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#047857" /></marker>
+  </defs>
+</svg>

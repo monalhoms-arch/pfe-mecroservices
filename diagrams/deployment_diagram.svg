@@ -1,0 +1,109 @@
+<svg width="850" height="600" viewBox="0 0 850 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="nodeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f1f5f9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+      <feOffset dx="2" dy="2" result="offsetblur" />
+      <feComponentTransfer><feFuncA type="linear" slope="0.3" /></feComponentTransfer>
+      <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="850" height="600" fill="#ffffff" rx="10" />
+  <text x="425" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#0f172a">Deployment Diagram (مخطط النشر و البنية التحتية)</text>
+
+  <!-- Node: User Device -->
+  <g transform="translate(50, 80)">
+    <rect width="200" height="150" fill="url(#nodeGrad)" stroke="#94a3b8" stroke-width="2" filter="url(#shadow)" />
+    <!-- 3D effect polygon -->
+    <polygon points="0,0 20,-20 220,-20 220,130 200,150 200,0" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1" />
+    <text x="100" y="20" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#334155">&lt;&lt;device&gt;&gt;</text>
+    <text x="100" y="40" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#0f172a">Client Machine</text>
+    
+    <rect x="20" y="60" width="160" height="70" rx="5" fill="white" stroke="#64748b" />
+    <text x="100" y="85" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#0f172a">&lt;&lt;execution environment&gt;&gt;</text>
+    <text x="100" y="105" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#3b82f6">Web Browser</text>
+  </g>
+
+  <!-- Node: Frontend Server -->
+  <g transform="translate(320, 80)">
+    <rect width="200" height="150" fill="url(#nodeGrad)" stroke="#94a3b8" stroke-width="2" filter="url(#shadow)" />
+    <polygon points="0,0 20,-20 220,-20 220,130 200,150 200,0" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1" />
+    <text x="100" y="20" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#334155">&lt;&lt;execution environment&gt;&gt;</text>
+    <text x="100" y="40" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#0f172a">Node.js Server</text>
+    
+    <rect x="20" y="60" width="160" height="70" rx="5" fill="white" stroke="#64748b" />
+    <text x="100" y="85" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#0f172a">&lt;&lt;artifact&gt;&gt;</text>
+    <text x="100" y="105" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#2563eb">React SPA (Port 5173)</text>
+  </g>
+
+  <!-- Node: Backend Cluster -->
+  <g transform="translate(50, 320)">
+    <rect width="470" height="230" fill="url(#nodeGrad)" stroke="#94a3b8" stroke-width="2" filter="url(#shadow)" />
+    <polygon points="0,0 20,-20 490,-20 490,210 470,230 470,0" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1" />
+    <text x="235" y="20" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#334155">&lt;&lt;execution environment&gt;&gt;</text>
+    <text x="235" y="40" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#0f172a">Application Server (Python / Uvicorn)</text>
+    
+    <rect x="20" y="60" width="130" height="60" rx="5" fill="white" stroke="#64748b" />
+    <text x="85" y="85" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#0f172a">&lt;&lt;component&gt;&gt;</text>
+    <text x="85" y="105" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#10b981">WhatsApp (8000)</text>
+
+    <rect x="170" y="60" width="130" height="60" rx="5" fill="white" stroke="#64748b" />
+    <text x="235" y="85" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#0f172a">&lt;&lt;component&gt;&gt;</text>
+    <text x="235" y="105" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#3b82f6">GPS Svc (8001)</text>
+
+    <rect x="320" y="60" width="130" height="60" rx="5" fill="white" stroke="#64748b" />
+    <text x="385" y="85" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#0f172a">&lt;&lt;component&gt;&gt;</text>
+    <text x="385" y="105" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#e11d48">PDF Svc (8002)</text>
+
+    <!-- Sub Node Evolution API -->
+    <rect x="150" y="140" width="170" height="70" rx="5" fill="#d1fae5" stroke="#10b981" stroke-width="2" />
+    <text x="235" y="165" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#047857">&lt;&lt;docker container&gt;&gt;</text>
+    <text x="235" y="185" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#065f46">Evolution API (8080)</text>
+  </g>
+
+  <!-- Node: Database Server -->
+  <g transform="translate(600, 320)">
+    <rect width="200" height="100" fill="url(#nodeGrad)" stroke="#94a3b8" stroke-width="2" filter="url(#shadow)" />
+    <polygon points="0,0 20,-20 220,-20 220,80 200,100 200,0" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1" />
+    <text x="100" y="20" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#334155">&lt;&lt;database server&gt;&gt;</text>
+    <text x="100" y="40" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#0f172a">PostgreSQL</text>
+    
+    <rect x="20" y="60" width="160" height="30" rx="5" fill="white" stroke="#64748b" />
+    <text x="100" y="80" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#0369a1">khidmati_db (5432)</text>
+  </g>
+
+  <!-- Node: Redis Server -->
+  <g transform="translate(600, 470)">
+    <rect width="200" height="80" fill="url(#nodeGrad)" stroke="#94a3b8" stroke-width="2" filter="url(#shadow)" />
+    <polygon points="0,0 20,-20 220,-20 220,60 200,80 200,0" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1" />
+    <text x="100" y="20" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#334155">&lt;&lt;cache server&gt;&gt;</text>
+    <text x="100" y="40" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#0f172a">Redis</text>
+    
+    <rect x="20" y="50" width="160" height="20" rx="5" fill="white" stroke="#64748b" />
+    <text x="100" y="65" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">OTP Cache (6379)</text>
+  </g>
+
+  <!-- Communication Lines -->
+  <g stroke="#475569" stroke-width="2" fill="none">
+    <!-- Browser to React -->
+    <path d="M 250 155 L 320 155" />
+    <text x="285" y="145" font-family="Arial" font-size="12" fill="#475569" stroke="none">HTTP</text>
+    
+    <!-- React to FastAPI -->
+    <path d="M 420 230 L 285 320" stroke-dasharray="5,5" />
+    <text x="360" y="280" font-family="Arial" font-size="12" fill="#475569" stroke="none">REST API</text>
+
+    <!-- FastAPI to DB -->
+    <path d="M 520 370 L 600 370" />
+    <text x="560" y="360" font-family="Arial" font-size="12" fill="#475569" stroke="none">TCP/IP</text>
+
+    <!-- FastAPI to Redis -->
+    <path d="M 520 510 L 600 510" />
+    <text x="560" y="500" font-family="Arial" font-size="12" fill="#475569" stroke="none">TCP/IP</text>
+  </g>
+
+</svg>

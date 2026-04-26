@@ -1,0 +1,79 @@
+<svg width="800" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+      <feOffset dx="2" dy="2" result="offsetblur" />
+      <feComponentTransfer><feFuncA type="linear" slope="0.3" /></feComponentTransfer>
+      <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="800" height="500" fill="#f8fafc" rx="10" />
+  <text x="400" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#0f172a">State Machine Diagram: Appointment Lifecycle</text>
+  <text x="400" y="65" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#64748b">(مخطط الحالة: دورة حياة الموعد / الطلب)</text>
+
+  <!-- Start State -->
+  <circle cx="100" cy="250" r="15" fill="#10b981" filter="url(#shadow)" />
+  
+  <!-- State: Pending -->
+  <rect x="200" y="225" width="120" height="50" rx="25" fill="#fef08a" stroke="#ca8a04" stroke-width="2" filter="url(#shadow)" />
+  <text x="260" y="255" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#854d0e">Pending</text>
+
+  <!-- State: Confirmed -->
+  <rect x="450" y="225" width="120" height="50" rx="25" fill="#bfdbfe" stroke="#2563eb" stroke-width="2" filter="url(#shadow)" />
+  <text x="510" y="255" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e40af">Confirmed</text>
+
+  <!-- State: Completed -->
+  <rect x="680" y="225" width="100" height="50" rx="25" fill="#a7f3d0" stroke="#059669" stroke-width="2" filter="url(#shadow)" />
+  <text x="730" y="255" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#064e3b">Completed</text>
+
+  <!-- State: Cancelled -->
+  <rect x="325" y="380" width="120" height="50" rx="25" fill="#fecaca" stroke="#dc2626" stroke-width="2" filter="url(#shadow)" />
+  <text x="385" y="410" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#991b1b">Cancelled</text>
+
+  <!-- End State (from Completed) -->
+  <circle cx="730" cy="350" r="15" fill="white" stroke="#0f172a" stroke-width="3" filter="url(#shadow)" />
+  <circle cx="730" cy="350" r="8" fill="#0f172a" />
+
+  <!-- End State (from Cancelled) -->
+  <circle cx="385" cy="470" r="15" fill="white" stroke="#0f172a" stroke-width="3" filter="url(#shadow)" />
+  <circle cx="385" cy="470" r="8" fill="#0f172a" />
+
+
+  <!-- Transitions -->
+  <g stroke="#475569" stroke-width="2" fill="none">
+    <!-- Start to Pending -->
+    <path d="M 115 250 L 200 250" marker-end="url(#arrow)" />
+    <text x="157" y="240" font-family="Arial" font-size="12" fill="#475569" stroke="none" text-anchor="middle">create()</text>
+
+    <!-- Pending to Confirmed -->
+    <path d="M 320 250 L 450 250" marker-end="url(#arrow)" />
+    <text x="385" y="240" font-family="Arial" font-size="12" fill="#475569" stroke="none" text-anchor="middle">accept_booking()</text>
+
+    <!-- Confirmed to Completed -->
+    <path d="M 570 250 L 680 250" marker-end="url(#arrow)" />
+    <text x="625" y="240" font-family="Arial" font-size="12" fill="#475569" stroke="none" text-anchor="middle">mark_done()</text>
+
+    <!-- Pending to Cancelled -->
+    <path d="M 260 275 Q 260 390 325 390" marker-end="url(#arrow)" />
+    <text x="240" y="340" font-family="Arial" font-size="12" fill="#ef4444" stroke="none" text-anchor="middle">cancel()</text>
+
+    <!-- Confirmed to Cancelled -->
+    <path d="M 510 275 Q 510 415 445 415" marker-end="url(#arrow)" />
+    <text x="530" y="360" font-family="Arial" font-size="12" fill="#ef4444" stroke="none" text-anchor="middle">cancel()</text>
+
+    <!-- Completed to End -->
+    <path d="M 730 275 L 730 335" marker-end="url(#arrow)" />
+
+    <!-- Cancelled to End -->
+    <path d="M 385 430 L 385 455" marker-end="url(#arrow)" />
+  </g>
+
+  <!-- Marker definition -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569" />
+    </marker>
+  </defs>
+
+</svg>

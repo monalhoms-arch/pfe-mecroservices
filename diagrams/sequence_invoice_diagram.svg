@@ -1,0 +1,97 @@
+<svg width="900" height="600" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+      <feOffset dx="2" dy="2" result="offsetblur" />
+      <feComponentTransfer><feFuncA type="linear" slope="0.3" /></feComponentTransfer>
+      <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="900" height="600" fill="#f8fafc" rx="10" />
+  <text x="450" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#0f172a">Sequence Diagram: PDF Invoice Generation &amp; Delivery</text>
+
+  <!-- Actors and Lifelines -->
+  <!-- Worker UI -->
+  <g transform="translate(100, 80)">
+    <rect width="100" height="40" rx="5" fill="#3b82f6" filter="url(#shadow)" />
+    <text x="50" y="25" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="white">Worker App</text>
+    <line x1="50" y1="40" x2="50" y2="480" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,5" />
+    <rect x="45" y="60" width="10" height="400" fill="#bfdbfe" />
+  </g>
+
+  <!-- PDF Service -->
+  <g transform="translate(280, 80)">
+    <rect width="100" height="40" rx="5" fill="#e11d48" filter="url(#shadow)" />
+    <text x="50" y="25" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="white">PDF Service</text>
+    <line x1="50" y1="40" x2="50" y2="480" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,5" />
+    <rect x="45" y="80" width="10" height="120" fill="#fecdd3" />
+  </g>
+
+  <!-- WhatsApp Service -->
+  <g transform="translate(460, 80)">
+    <rect width="120" height="40" rx="5" fill="#10b981" filter="url(#shadow)" />
+    <text x="60" y="25" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="white">WhatsApp Svc</text>
+    <line x1="60" y1="40" x2="60" y2="480" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,5" />
+    <rect x="55" y="240" width="10" height="150" fill="#a7f3d0" />
+  </g>
+
+  <!-- Evolution API -->
+  <g transform="translate(640, 80)">
+    <rect width="100" height="40" rx="5" fill="#047857" filter="url(#shadow)" />
+    <text x="50" y="25" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="white">Evo API</text>
+    <line x1="50" y1="40" x2="50" y2="480" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,5" />
+    <rect x="45" y="280" width="10" height="60" fill="#6ee7b7" />
+  </g>
+
+  <!-- Customer WhatsApp -->
+  <g transform="translate(780, 80)">
+    <rect width="100" height="40" rx="5" fill="#f59e0b" filter="url(#shadow)" />
+    <text x="50" y="25" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="white">Customer WA</text>
+    <line x1="50" y1="40" x2="50" y2="480" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,5" />
+    <rect x="45" y="320" width="10" height="30" fill="#fde68a" />
+  </g>
+
+  <!-- Messages / Arrows -->
+  <g font-family="Arial" font-size="12" fill="#334155" stroke="#334155" stroke-width="2">
+    
+    <!-- 1. Request PDF Generation -->
+    <path d="M 155 170 L 325 170" marker-end="url(#arrow)" />
+    <text x="240" y="160" text-anchor="middle" stroke="none">1. POST /generate-pdf (Payload)</text>
+
+    <!-- 2. Processing (Self Call) -->
+    <path d="M 335 190 L 360 190 L 360 210 L 335 210" fill="none" marker-end="url(#arrow)" />
+    <text x="420" y="205" text-anchor="middle" stroke="none">2. Reshape Arabic &amp; Gen QR</text>
+
+    <!-- 3. Return Invoice URL -->
+    <path d="M 325 250 L 155 250" stroke-dasharray="5,5" marker-end="url(#arrow)" />
+    <text x="240" y="240" text-anchor="middle" stroke="none">3. Return invoice_id &amp; PDF URL</text>
+
+    <!-- 4. Send WhatsApp Notif -->
+    <path d="M 155 330 L 515 330" marker-end="url(#arrow)" />
+    <text x="335" y="320" text-anchor="middle" stroke="none">4. POST /send-invoice-alert (URL)</text>
+
+    <!-- 5. Evo API Forward -->
+    <path d="M 525 370 L 685 370" marker-end="url(#arrow)" />
+    <text x="605" y="360" text-anchor="middle" stroke="none">5. Forward JSON Payload</text>
+
+    <!-- 6. WhatsApp Message -->
+    <path d="M 695 410 L 825 410" marker-end="url(#arrow)" />
+    <text x="760" y="400" text-anchor="middle" stroke="none">6. Deliver Message</text>
+
+    <!-- 7. Acks -->
+    <path d="M 685 450 L 525 450" stroke-dasharray="5,5" marker-end="url(#arrow)" />
+    <text x="605" y="440" text-anchor="middle" stroke="none">7. API 200 OK</text>
+    
+    <path d="M 515 470 L 155 470" stroke-dasharray="5,5" marker-end="url(#arrow)" />
+    <text x="335" y="460" text-anchor="middle" stroke="none">8. Alert Sent Response</text>
+
+  </g>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+  </defs>
+
+</svg>

@@ -1,0 +1,78 @@
+<svg width="800" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="uiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="waGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#25D366;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#128C7E;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+      <feOffset dx="2" dy="2" result="offsetblur" />
+      <feComponentTransfer><feFuncA type="linear" slope="0.3" /></feComponentTransfer>
+      <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="800" height="500" fill="#f8fafc" rx="10" />
+  <text x="400" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#0f172a">WhatsApp Integration via Deep Link (URL Intent)</text>
+  <text x="400" y="65" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#64748b">(التوجيه المباشر لتطبيق واتساب باستخدام الروابط)</text>
+
+  <!-- Step 1: Frontend App -->
+  <rect x="50" y="120" width="220" height="250" rx="15" fill="url(#uiGrad)" filter="url(#shadow)" />
+  <text x="160" y="160" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="white">Simple UI (React App)</text>
+
+  <rect x="70" y="190" width="180" height="50" rx="5" fill="white" fill-opacity="0.2" />
+  <text x="160" y="210" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="white">1. Data Formatting</text>
+  <text x="160" y="225" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#bfdbfe">Phone: +213xxxx</text>
+  <text x="160" y="235" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#bfdbfe">Msg: EncodeURI("مرحباً")</text>
+
+  <rect x="70" y="260" width="180" height="40" rx="5" fill="white" fill-opacity="0.2" />
+  <text x="160" y="285" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="white">2. Action Trigger</text>
+
+  <rect x="100" y="320" width="120" height="30" rx="15" fill="#fcd34d" />
+  <text x="160" y="340" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#92400e">Click "Send Msg"</text>
+
+  <!-- URL Box (The Bridge) -->
+  <rect x="300" y="210" width="200" height="70" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" filter="url(#shadow)" />
+  <text x="400" y="235" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#334155">Constructed URL (wa.me)</text>
+  <text x="400" y="260" font-family="Courier New, monospace" font-size="10" font-weight="bold" text-anchor="middle" fill="#2563eb">https://wa.me/213XXXX?</text>
+  <text x="400" y="272" font-family="Courier New, monospace" font-size="10" font-weight="bold" text-anchor="middle" fill="#2563eb">text=UrlEncodedMessage</text>
+
+  <!-- Step 2: WhatsApp Native -->
+  <rect x="530" y="120" width="220" height="250" rx="15" fill="url(#waGrad)" filter="url(#shadow)" />
+  <text x="640" y="160" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="white">User's Device</text>
+
+  <rect x="550" y="190" width="180" height="50" rx="5" fill="white" fill-opacity="0.2" />
+  <text x="640" y="210" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="white">OS Deep Link Handler</text>
+  <text x="640" y="225" font-family="Courier New, monospace" font-size="10" text-anchor="middle" fill="#bbf7d0">whatsapp://send?phone=...</text>
+
+  <rect x="550" y="260" width="180" height="80" rx="5" fill="white" fill-opacity="0.2" />
+  <text x="640" y="285" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="white">Native WhatsApp App</text>
+  <text x="640" y="305" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#bbf7d0">Opens chat with number</text>
+  <text x="640" y="320" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#bbf7d0">Pre-fills the message text</text>
+
+
+  <!-- Connecting Arrows -->
+  <g stroke="#64748b" stroke-width="3" fill="none">
+    <!-- UI to URL -->
+    <path d="M 270 245 L 300 245" marker-end="url(#arrow)" />
+    <!-- URL to Device -->
+    <path d="M 500 245 L 530 245" marker-end="url(#arrow)" />
+  </g>
+
+  <!-- Summary Text -->
+  <text x="400" y="420" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#0f172a">No Backend Required - 100% Client-Side Execution</text>
+  <text x="400" y="445" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#475569">هذه الطريقة لا تتطلب خوادم (Evolution API)، بل تعتمد على توجيه المتصفح مباشرة لفتح تطبيق واتساب المثبت على الهاتف أو الحاسوب.</text>
+
+  <!-- Marker definition -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+    </marker>
+  </defs>
+
+</svg>

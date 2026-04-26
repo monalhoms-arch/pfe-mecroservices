@@ -1,0 +1,74 @@
+<svg width="800" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pdfGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff4b2b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9f1239;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="dbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#336791;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#21445f;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+      <feOffset dx="2" dy="2" result="offsetblur" />
+      <feComponentTransfer><feFuncA type="linear" slope="0.3" /></feComponentTransfer>
+      <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="800" height="500" fill="#fff5f5" rx="15" />
+  <text x="400" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#881337">Premium PDF Engine - Detailed Architecture</text>
+
+  <!-- Service Box -->
+  <rect x="100" y="70" width="600" height="280" rx="15" fill="url(#pdfGrad)" filter="url(#shadow)" />
+  <text x="400" y="100" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="white">FastAPI PDF Microservice (Port 8002)</text>
+
+  <!-- API Endpoints Section -->
+  <rect x="120" y="120" width="260" height="210" rx="10" fill="#00000033" stroke="white" stroke-width="1" />
+  <text x="250" y="145" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#ffe4e6">API Interfaces</text>
+  
+  <rect x="135" y="170" width="230" height="40" rx="5" fill="white" fill-opacity="0.2" />
+  <text x="250" y="188" font-family="Courier New, monospace" font-size="12" font-weight="bold" text-anchor="middle" fill="white">POST /api/v1/generate-pdf</text>
+  <text x="250" y="202" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#fecdd3">(Receives InvoiceRequest JSON)</text>
+
+  <rect x="135" y="230" width="230" height="40" rx="5" fill="white" fill-opacity="0.2" />
+  <text x="250" y="248" font-family="Courier New, monospace" font-size="12" font-weight="bold" text-anchor="middle" fill="white">GET /api/v1/files/{id}</text>
+  <text x="250" y="262" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#fecdd3">(Serves Static PDF File)</text>
+
+
+  <!-- Core Engine Section -->
+  <rect x="420" y="120" width="260" height="210" rx="10" fill="#00000033" stroke="white" stroke-width="1" />
+  <text x="550" y="145" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#ffe4e6">Core PDF Generation Logic</text>
+
+  <rect x="435" y="160" width="230" height="45" rx="5" fill="white" fill-opacity="0.1" stroke="white" stroke-dasharray="4" />
+  <text x="550" y="180" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="white">Arabic RTL Reshaper</text>
+  <text x="550" y="195" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#fecdd3">(Amiri-Regular.ttf integration)</text>
+
+  <rect x="435" y="215" width="230" height="45" rx="5" fill="white" fill-opacity="0.1" stroke="white" stroke-dasharray="4" />
+  <text x="550" y="235" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="white">QR Code Generator</text>
+  <text x="550" y="250" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#fecdd3">(Dynamic verification link injection)</text>
+
+  <rect x="435" y="270" width="230" height="45" rx="5" fill="white" fill-opacity="0.1" stroke="white" stroke-dasharray="4" />
+  <text x="550" y="290" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="white">ReportLab Engine</text>
+  <text x="550" y="305" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#fecdd3">(Canvas Drawing &amp; Formatting)</text>
+
+
+  <!-- External Systems / Storage -->
+  <rect x="150" y="400" width="200" height="70" rx="10" fill="url(#dbGrad)" filter="url(#shadow)" />
+  <text x="250" y="425" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="white">PostgreSQL DB</text>
+  <text x="250" y="445" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#bae6fd">Table: invoices</text>
+  <text x="250" y="458" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#bae6fd">(Logs invoice_code, provider, price)</text>
+
+  <rect x="450" y="400" width="200" height="70" rx="10" fill="#e11d48" filter="url(#shadow)" />
+  <text x="550" y="430" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="white">Local File System</text>
+  <text x="550" y="450" font-family="Courier New, monospace" font-size="11" text-anchor="middle" fill="#fda4af">./pdf/invoices/*.pdf</text>
+
+  <!-- Connection Lines -->
+  <path d="M 250 350 L 250 390" stroke="#336791" stroke-width="3" fill="none" marker-end="url(#arrowBlue)" />
+  <path d="M 550 350 L 550 390" stroke="#e11d48" stroke-width="3" fill="none" marker-end="url(#arrowRed)" />
+
+  <defs>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#336791" /></marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#e11d48" /></marker>
+  </defs>
+</svg>

@@ -1,0 +1,81 @@
+<svg width="800" height="700" viewBox="0 0 800 700" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+      <feOffset dx="2" dy="2" result="offsetblur" />
+      <feComponentTransfer><feFuncA type="linear" slope="0.3" /></feComponentTransfer>
+      <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="800" height="700" fill="#f8fafc" rx="10" />
+  <text x="400" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#0f172a">Activity Diagram: OTP Login Flow</text>
+
+  <g font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle">
+    
+    <!-- Start Node -->
+    <circle cx="400" cy="80" r="15" fill="#10b981" filter="url(#shadow)" />
+
+    <!-- Action 1: User enters phone -->
+    <rect x="300" y="120" width="200" height="40" rx="20" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2" filter="url(#shadow)" />
+    <text x="400" y="145" fill="#1e40af">User Submits Phone #</text>
+
+    <!-- Action 2: API Query DB -->
+    <rect x="300" y="200" width="200" height="40" rx="5" fill="#f59e0b" fill-opacity="0.2" stroke="#f59e0b" stroke-width="2" filter="url(#shadow)" />
+    <text x="400" y="225" fill="#b45309">Query Account in DB</text>
+
+    <!-- Decision 1: Exists? -->
+    <polygon points="400,280 460,310 400,340 340,310" fill="#eab308" filter="url(#shadow)" />
+    <text x="400" y="315" fill="#713f12" font-size="12">Exists?</text>
+
+    <!-- Branch: No -->
+    <rect x="150" y="290" width="120" height="40" rx="5" fill="#ef4444" fill-opacity="0.2" stroke="#ef4444" stroke-width="2" filter="url(#shadow)" />
+    <text x="210" y="315" fill="#991b1b">Return Error</text>
+    
+    <!-- End Node 1 -->
+    <circle cx="210" cy="370" r="12" fill="white" stroke="#ef4444" stroke-width="4" filter="url(#shadow)" />
+    <circle cx="210" cy="370" r="6" fill="#ef4444" />
+
+    <!-- Branch: Yes -> Gen OTP -->
+    <rect x="300" y="380" width="200" height="40" rx="5" fill="#8b5cf6" fill-opacity="0.2" stroke="#8b5cf6" stroke-width="2" filter="url(#shadow)" />
+    <text x="400" y="405" fill="#5b21b6">Generate 6-digit OTP</text>
+
+    <!-- Action: Redis Store -->
+    <rect x="300" y="460" width="200" height="40" rx="5" fill="#dc2626" fill-opacity="0.2" stroke="#dc2626" stroke-width="2" filter="url(#shadow)" />
+    <text x="400" y="485" fill="#991b1b">Store in Redis (TTL=5m)</text>
+
+    <!-- Action: Send via Evo -->
+    <rect x="300" y="540" width="200" height="40" rx="5" fill="#10b981" fill-opacity="0.2" stroke="#10b981" stroke-width="2" filter="url(#shadow)" />
+    <text x="400" y="565" fill="#047857">Dispatch via Evo API</text>
+
+    <!-- Action: Await Input -->
+    <rect x="300" y="620" width="200" height="40" rx="20" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2" filter="url(#shadow)" />
+    <text x="400" y="645" fill="#1e40af">Await User OTP Input...</text>
+  </g>
+
+  <!-- Arrows -->
+  <g stroke="#64748b" stroke-width="2" fill="none">
+    <path d="M 400 95 L 400 120" marker-end="url(#arrow)" />
+    <path d="M 400 160 L 400 200" marker-end="url(#arrow)" />
+    <path d="M 400 240 L 400 280" marker-end="url(#arrow)" />
+    
+    <!-- Decision No -->
+    <path d="M 340 310 L 270 310" marker-end="url(#arrow)" />
+    <text x="300" y="305" font-family="Arial" font-size="12" fill="#64748b" stroke="none">[No]</text>
+    <path d="M 210 330 L 210 355" marker-end="url(#arrow)" />
+
+    <!-- Decision Yes -->
+    <path d="M 400 340 L 400 380" marker-end="url(#arrow)" />
+    <text x="415" y="365" font-family="Arial" font-size="12" fill="#64748b" stroke="none">[Yes]</text>
+
+    <path d="M 400 420 L 400 460" marker-end="url(#arrow)" />
+    <path d="M 400 500 L 400 540" marker-end="url(#arrow)" />
+    <path d="M 400 580 L 400 620" marker-end="url(#arrow)" />
+  </g>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+    </marker>
+  </defs>
+</svg>

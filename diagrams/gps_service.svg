@@ -1,0 +1,62 @@
+<svg width="800" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gpsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0284c7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#082f49;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+      <feOffset dx="2" dy="2" result="offsetblur" />
+      <feComponentTransfer><feFuncA type="linear" slope="0.3" /></feComponentTransfer>
+      <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="800" height="500" fill="#f0f9ff" rx="15" />
+  <text x="400" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#0369a1">GPS Locomotion Service - Detailed Architecture</text>
+
+  <!-- Service Box -->
+  <rect x="100" y="70" width="600" height="280" rx="15" fill="url(#gpsGrad)" filter="url(#shadow)" />
+  <text x="400" y="100" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="white">FastAPI GPS Microservice (Port 8001)</text>
+
+  <!-- API Endpoints Section -->
+  <rect x="120" y="120" width="260" height="210" rx="10" fill="#00000033" stroke="white" stroke-width="1" />
+  <text x="250" y="145" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#e0f2fe">API Interfaces</text>
+  
+  <rect x="135" y="170" width="230" height="50" rx="5" fill="white" fill-opacity="0.2" />
+  <text x="250" y="188" font-family="Courier New, monospace" font-size="12" font-weight="bold" text-anchor="middle" fill="white">POST /api/v1/distance</text>
+  <text x="250" y="202" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#bae6fd">Receives: DistanceRequest</text>
+  <text x="250" y="214" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#bae6fd">(Origin &amp; Destination Coords)</text>
+
+  <rect x="135" y="235" width="230" height="50" rx="5" fill="white" fill-opacity="0.2" />
+  <text x="250" y="253" font-family="Courier New, monospace" font-size="12" font-weight="bold" text-anchor="middle" fill="white">GET /api/v1/maps-url</text>
+  <text x="250" y="267" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#bae6fd">Params: lat, lng, label</text>
+  <text x="250" y="279" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#bae6fd">Returns dict of mapping links</text>
+
+  <!-- Core Logic Section -->
+  <rect x="420" y="120" width="260" height="210" rx="10" fill="#00000033" stroke="white" stroke-width="1" />
+  <text x="550" y="145" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#e0f2fe">Core Processing Logic</text>
+
+  <rect x="435" y="160" width="230" height="45" rx="5" fill="white" fill-opacity="0.1" stroke="white" stroke-dasharray="4" />
+  <text x="550" y="180" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="white">Distance Calculation (Geopy)</text>
+  <text x="550" y="195" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#bae6fd">Uses geodesic formula (km/m)</text>
+
+  <rect x="435" y="215" width="230" height="100" rx="5" fill="white" fill-opacity="0.1" stroke="white" stroke-dasharray="4" />
+  <text x="550" y="235" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="white">Map Links Generation</text>
+  <text x="550" y="255" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#fde047">Google Maps: https://maps.google.com/...</text>
+  <text x="550" y="270" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#fde047">Apple Maps: http://maps.apple.com/...</text>
+  <text x="550" y="285" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#fde047">Waze: https://waze.com/ul?...</text>
+  <text x="550" y="300" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#fde047">OSM: https://www.openstreetmap.org/...</text>
+
+  <!-- Output Format Section -->
+  <rect x="250" y="380" width="300" height="80" rx="10" fill="#0ea5e9" filter="url(#shadow)" />
+  <text x="400" y="405" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="white">Client App (Simple UI)</text>
+  <text x="400" y="425" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#e0f2fe">Consumes calculated distances for pricing</text>
+  <text x="400" y="440" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#e0f2fe">Uses map URLs for direct App-to-App routing</text>
+
+  <path d="M 400 350 L 400 375" stroke="#0ea5e9" stroke-width="3" fill="none" marker-end="url(#arrowBlue)" />
+
+  <defs>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#0ea5e9" /></marker>
+  </defs>
+</svg>
