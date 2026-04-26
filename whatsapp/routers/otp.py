@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
 from loguru import logger
+import hashlib
+import hmac
 from schemas import OTPRequest, OTPVerify, OTPResponse
 from services.whatsapp_service import send_whatsapp_message, generate_otp
 from database import get_db
@@ -12,13 +13,19 @@ import models
 
 router = APIRouter(dependencies=[Depends(get_api_key)])
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+def _hash_otp(code: str) -> str:
+    """تشفير رمز OTP باستخدام HMAC-SHA256 (مدمج في Python — بدون مشاكل توافق)."""
+    return hmac.new(
+        settings.API_SECRET_KEY.encode(),
+        code.encode(),
+        hashlib.sha256
+    ).hexdigest()
 
-def get_password_hash(password: str):
-    return pwd_context.hash(password)
+def get_password_hash(code: str) -> str:
+    return _hash_otp(code)
 
-def verify_password(plain_password: str, hashed_password: str):
-    return pwd_context.verify(plain_password, hashed_password)
+def verify_password(plain_code: str, hashed_code: str) -> bool:
+    return hmac.compare_digest(_hash_otp(plain_code), hashed_code)
 
 @router.post("/send", response_model=OTPResponse)
 def send_otp(request: OTPRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):

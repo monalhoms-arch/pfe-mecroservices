@@ -67,6 +67,13 @@ class InvoiceRequest(BaseModel):
     items: List[InvoiceItem]
     currency: str = "DZD"
     notes: Optional[str] = None
+    
+    # Brand Configuration
+    brand_color: Optional[str] = "#25D366" # Default WhatsApp green
+    logo_url: Optional[str] = None
+
+class StatusUpdateRequest(BaseModel):
+    status: str
 
 @app.post("/api/v1/generate-pdf")
 async def create_pdf_invoice(request: Request, payload: InvoiceRequest, db=Depends(get_db)):
@@ -87,7 +94,8 @@ async def create_pdf_invoice(request: Request, payload: InvoiceRequest, db=Depen
             provider_id=payload.provider_id,
             customer_name=payload.customer_name,
             service_price=total_price,
-            pdf_path=file_path
+            pdf_path=file_path,
+            status="Unpaid"
         )
         db.add(new_invoice)
         db.commit()
@@ -102,6 +110,58 @@ async def create_pdf_invoice(request: Request, payload: InvoiceRequest, db=Depen
     except Exception as e:
         if db: db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/invoices")
+async def list_invoices(db=Depends(get_db)):
+    invoices = db.query(InvoiceDB).order_by(InvoiceDB.id.desc()).all()
+    return {"status": "success", "data": invoices}
+
+@app.get("/api/v1/invoices/{invoice_id}")
+async def get_invoice(invoice_id: str, request: Request, db=Depends(get_db)):
+    invoice = db.query(InvoiceDB).filter(InvoiceDB.invoice_code == invoice_id).first()
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    download_url = str(request.url_for("download_invoice", invoice_id=invoice_id))
+    return {
+        "status": "success", 
+        "data": {
+            "id": invoice.id,
+            "invoice_code": invoice.invoice_code,
+            "provider_id": invoice.provider_id,
+            "customer_name": invoice.customer_name,
+            "service_price": invoice.service_price,
+            "status": invoice.status,
+            "created_at": invoice.created_at,
+            "download_url": download_url
+        }
+    }
+
+@app.patch("/api/v1/invoices/{invoice_id}/status")
+async def update_invoice_status(invoice_id: str, payload: StatusUpdateRequest, db=Depends(get_db)):
+    invoice = db.query(InvoiceDB).filter(InvoiceDB.invoice_code == invoice_id).first()
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    invoice.status = payload.status
+    db.commit()
+    return {"status": "success", "message": f"Invoice status updated to {payload.status}"}
+
+@app.delete("/api/v1/invoices/{invoice_id}")
+async def delete_invoice(invoice_id: str, db=Depends(get_db)):
+    invoice = db.query(InvoiceDB).filter(InvoiceDB.invoice_code == invoice_id).first()
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    # Delete from DB
+    db.delete(invoice)
+    db.commit()
+    
+    # Delete PDF file
+    if invoice.pdf_path and os.path.exists(invoice.pdf_path):
+        os.remove(invoice.pdf_path)
+        
+    return {"status": "success", "message": "Invoice deleted"}
 
 @app.get("/api/v1/files/{invoice_id}", name="download_invoice")
 async def download_invoice(invoice_id: str):
