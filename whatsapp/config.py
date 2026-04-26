@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     META_API_TOKEN: str = "change_me_in_env"
     META_PHONE_NUMBER_ID: str = "change_me_in_env"
     META_API_VERSION: str = "v19.0"
+    META_VERIFY_TOKEN: str = "change_me_in_env"
 
     # ───────── Presentation Mode ─────────
     # True  = محاكاة ناجحة للعرض (لا ترسل رسائل حقيقية)

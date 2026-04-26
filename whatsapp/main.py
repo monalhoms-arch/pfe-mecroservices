@@ -67,6 +67,32 @@ def health_check():
         "evolution_api": settings.EVOLUTION_API_URL,
     }
 
+# ── Webhook Meta Cloud API ────────────────────────────────────────────────────
+from fastapi import Request, Query
+from fastapi.responses import PlainTextResponse
+
+@app.get("/webhook", tags=["Webhook"])
+def webhook_verify(
+    hub_mode: str = Query(None, alias="hub.mode"),
+    hub_verify_token: str = Query(None, alias="hub.verify_token"),
+    hub_challenge: str = Query(None, alias="hub.challenge"),
+):
+    """نقطة التحقق من الـ Webhook التي يطلبها Meta للتأكد من ملكية السيرفر."""
+    from config import settings
+    if hub_mode == "subscribe" and hub_verify_token == settings.META_VERIFY_TOKEN:
+        logger.success(f"✅ Webhook تم التحقق منه بنجاح!")
+        return PlainTextResponse(content=hub_challenge)
+    logger.warning(f"⚠️ محاولة تحقق Webhook فاشلة — Token غير صحيح")
+    return PlainTextResponse(content="Forbidden", status_code=403)
+
+@app.post("/webhook", tags=["Webhook"])
+async def webhook_receive(request: Request):
+    """استقبال الرسائل الواردة من Meta Cloud API."""
+    data = await request.json()
+    logger.info(f"📨 رسالة واردة من Meta: {data}")
+    # هنا يمكن إضافة منطق معالجة الرسائل الواردة مستقبلاً
+    return {"status": "received"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

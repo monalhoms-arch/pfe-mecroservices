@@ -37,6 +37,7 @@ def send_whatsapp_message(phone_number: str, message: str, is_business: bool = F
         try:
             requests.post(url, json=template_payload, headers=headers, timeout=10)
             logger.info(f"📬 [Meta] نافذة المحادثة فُتحت لـ {phone_number}")
+            time.sleep(2)  # انتظر Meta لمعالجة الـ template قبل إرسال النص
         except Exception:
             pass  # تجاهل خطأ الـ template وأكمل بالرسالة الأصلية
 
